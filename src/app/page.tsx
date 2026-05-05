@@ -1,65 +1,92 @@
-import Image from "next/image";
+const categories = [
+  "Jobs",
+  "Vehicles",
+  "Property",
+  "Electronics",
+  "Services",
+  "Fashion",
+];
+
+const featuredListings = [
+  {
+    title: "Cloud Sales Associate, ATLANCIS Technologies",
+    location: "Makadara, Nairobi",
+    price: "Apply with CV",
+    type: "Job",
+    status: "New",
+  },
+  {
+    title: "2018 MAZDA CX5 XDL PACKAGE",
+    location: "Karen, Nairobi",
+    price: "KSh 3,350,000",
+    type: "Vehicle",
+    status: "Featured",
+  },
+  {
+    title: "4 Bedroom House to Rent in Kangundo Road",
+    location: "Kangundo, Machakos",
+    price: "KSh 50,000 / month",
+    type: "Property",
+    status: "New",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="site-wrap">
+      <header className="hero">
+        <p className="eyebrow">Post Free Adverts in Kenya</p>
+        <h1>Kahustle Marketplace</h1>
+        <p className="subtext">
+          Buy, sell, and discover trusted listings across jobs, property,
+          vehicles, and more.
+        </p>
+
+        <form className="searchBar" action="#" method="get">
+          <input type="text" placeholder="What are you looking for?" />
+          <select defaultValue="All Categories" aria-label="Category">
+            <option>All Categories</option>
+            {categories.map((category) => (
+              <option key={category}>{category}</option>
+            ))}
+          </select>
+          <button type="submit">Search</button>
+        </form>
+      </header>
+
+      <section className="categories" aria-label="Popular categories">
+        {categories.map((category) => (
+          <article key={category} className="categoryCard">
+            <h2>{category}</h2>
+            <p>Browse latest {category.toLowerCase()} adverts</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="listings">
+        <div className="sectionHead">
+          <h2>Featured Listings</h2>
+          <a href="#">View all adverts</a>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="listingGrid">
+          {featuredListings.map((listing) => (
+            <article key={listing.title} className="listingCard">
+              <span className="badge">{listing.status}</span>
+              <h3>{listing.title}</h3>
+              <p className="meta">
+                {listing.type} • {listing.location}
+              </p>
+              <p className="price">{listing.price}</p>
+              <button type="button">View Details</button>
+            </article>
+          ))}
         </div>
-      </main>
-    </div>
+      </section>
+
+      <footer className="footer">
+        <p>© {new Date().getFullYear()} Kahustle. All rights reserved.</p>
+      </footer>
+    </main>
   );
 }
