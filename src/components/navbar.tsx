@@ -17,17 +17,47 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const navLinks = [
     { label: "Home", href: "/" },
-    { label: "Cars", href: "/cars" },
-    { label: "Properties", href: "/properties" },
+    {
+        label: "Vehicles",
+        href: "/vehicles",
+        children: [
+            { label: "Cars", href: "/cars/cars" },
+            { label: "Motorbikes & Scooters", href: "/cars/motorbikes" },
+            { label: "Trucks, Vans & Buses", href: "/cars/trucks" },
+            { label: "Auto Parts & Accessories", href: "/cars/accessories" },
+            { label: "Bicycles & 3 Wheelers", href: "/cars/bicycles" },
+        ]
+    },
+    {
+        label: "Construction Freelancer",
+        href: "/construction-freelancers",
+        children: [
+            { label: "Cars", href: "/construction-freelancers/plumber" },
+            { label: "Motorbikes & Scooters", href: "/construction-freelancers/building-construction" },
+            { label: "Trucks, Vans & Buses", href: "/construction-freelancers/electrician" },
+            { label: "Auto Parts & Accessories", href: "/construction-freelancers/masonry" },
+            { label: "Bicycles & 3 Wheelers", href: "/construction-freelancers/carpentry" },
+        ]
+    },
     {
         label: "Careers",
         href: "/careers",
         children: [
-            { label: "Employer", href: "/careers/employer" },
-            { label: "Jobseeker", href: "/careers/jobseeker" },
-        ],
+            { label: "Employers", href: "/careers/employers" },
+            { label: "Local Jobs", href: "/careers/local-jobs" },
+            { label: "Jobseeker", href: "/careers/jobseekers" },
+        ]
     },
-    { label: "Construction Freelancers", href: "/construction-freelancers" },
+    {
+        label: "Properties",
+        href: "/properties",
+        children: [
+            { label: "Apartments & Flats", href: "/properties/cars" },
+            { label: "Houses", href: "/properties/motorbikes" },
+            { label: "Commercial Property", href: "/properties/commercial_property" },
+            { label: "Plots & Land", href: "/properties/plots" },
+        ]
+    },
     { label: "Contact", href: "/contact" },
     { label: "About Us", href: "/about" },
 ]
@@ -44,7 +74,7 @@ export function Navbar() {
     const { data: session, status } = useSession()
     const menuRef = useRef<HTMLDivElement>(null)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
-    const [careersOpen, setCareersOpen] = useState(false)
+    const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -206,12 +236,12 @@ export function Navbar() {
                                 <div key={link.href}>
                                     <button
                                         className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-md hover:bg-green-50 hover:text-[#1a7a3c] transition-colors"
-                                        onClick={() => setCareersOpen(!careersOpen)}
+                                        onClick={() => setOpenDropdown(openDropdown === link.href ? null : link.href)}
                                     >
                                         {link.label}
-                                        <ChevronDown className={`h-4 w-4 transition-transform ${careersOpen ? "rotate-180" : ""}`} />
+                                        <ChevronDown className={`h-4 w-4 transition-transform ${openDropdown === link.href ? "rotate-180" : ""}`} />
                                     </button>
-                                    {careersOpen && (
+                                    {openDropdown === link.href && (
                                         <div className="ml-4 mt-1 flex flex-col gap-1 border-l-2 border-green-100 pl-3">
                                             {link.children.map((child) => (
                                                 <Link

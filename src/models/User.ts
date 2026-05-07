@@ -4,16 +4,34 @@
 import { Schema, model, models, Types, Document } from "mongoose";
 import bcrypt from "bcryptjs";
 
+
+export enum Feature {
+	PRIORITY_LISTING,
+	ADVANCED_ANALYTICS,
+	PREMIUM_CATEGORIES,
+	DIRECT_PRIORITY_MESSAGING,
+	EXCLUSIVE_PROMOTIONS,
+	ENHANCED_CONTACT_OPTIONS,
+	AD_MANAGEMENT_TOOLS,
+	TOP_SEARCH_EXPOSURE
+}
+
+
 export enum Role {
 	ADMIN = "ADMIN",
-	MERCHANT = "MERCHANT",
+	EDITOR = "EDITOR",
 	USER = "USER",
 }
 
 export enum AccountType {
-	PREMIUM = "PREMIUM",
-	FREEMIUM = "FREEMIUM",
+	INDIVIDUAL = "INDIVIDUAL",
+	BUSINESS = "BUSINESS",
+	AGENCY = "AGENCY",
+	DEALERSHIP = "DEALERSHIP",
+	RECRUITER = "RECRUITER",
 }
+
+
 
 export interface IUser extends Document {
 	_id: Types.ObjectId;
@@ -104,7 +122,7 @@ const UserSchema = new Schema<IUser>(
 		accountType: {
 			type: String,
 			enum: Object.values(AccountType),
-			default: AccountType.FREEMIUM,
+			default: AccountType.INDIVIDUAL,
 			index: true,
 		},
 		isActive: {
