@@ -106,15 +106,19 @@ export default function InstallPrompt() {
                         <div className="flex items-center gap-3">
                             <Image
                                 src="/icons/android-chrome-192x192.png"
-                                alt="Malipo Tech"
+                                alt="Kahustle"
                                 width={48}
                                 height={48}
                                 className="w-12 h-12 rounded-lg"
                             />
 
                             <div>
-                                <h3 className="font-semibold text-card-foreground">Install Paysuit</h3>
-                                <p className="text-sm text-muted-foreground">Access payments instantly — right from your home screen.</p>
+                                <h3 className="font-bold text-card-foreground text-sm">
+                                    Install Kahustle
+                                </h3>
+                                <p className="text-xs text-muted-foreground leading-snug mt-0.5">
+                                    Browse listings &amp; post ads right from your home screen.
+                                </p>
                             </div>
                         </div>
                         <button
@@ -149,8 +153,12 @@ export default function InstallPrompt() {
                                 <Bell className="h-6 w-6 text-accent" />
                             </div>
                             <div>
-                                <h3 className="font-semibold text-card-foreground">Enable Notifications</h3>
-                                <p className="text-sm text-muted-foreground">Get alerts when payments require approval.</p>
+                                <h3 className="font-bold text-card-foreground text-sm">
+                                    Stay in the Loop
+                                </h3>
+                                <p className="text-xs text-muted-foreground leading-snug mt-0.5">
+                                    Get notified when someone enquires about your ad or a new listing matches your search.
+                                </p>
                             </div>
                         </div>
                         <button
@@ -163,11 +171,18 @@ export default function InstallPrompt() {
                     </div>
 
                     <div className="flex gap-2">
-                        <Button onClick={handleEnableNotifications} className="flex-1">
-                            <Bell className="h-4 w-4 mr-2" />
-                            Enable
+                        <Button
+                            onClick={handleEnableNotifications}
+                            className="flex-1 bg-[#1a7a3c] hover:bg-[#155f30] text-white font-semibold text-sm h-9"
+                        >
+                            <Bell className="h-3.5 w-3.5 mr-1.5" />
+                            Enable Alerts
                         </Button>
-                        <Button onClick={handleDismissNotifications} variant="outline">
+                        <Button
+                            onClick={handleDismissNotifications}
+                            variant="outline"
+                            className="text-sm h-9"
+                        >
                             Skip
                         </Button>
                     </div>
