@@ -4,7 +4,7 @@ import {Button} from "@/components/ui/button";
 import {useTheme} from "@/components/theme-provider";
 
 export default function ContactNav() {
-    const { theme, setTheme } = useTheme()
+    // const { theme, setTheme } = useTheme()
     return (
         <div className="w-full bg-[#1a7a3c] text-white text-xs">
             <div className="max-w-7xl mx-auto px-4 h-9 flex items-center justify-between">
@@ -31,16 +31,16 @@ export default function ContactNav() {
                 </div>
 
                 {/* Theme Toggle */}
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                    className="h-9 w-9"
-                >
-                    <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                    <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                    <span className="sr-only">Toggle theme</span>
-                </Button>
+                {/*<Button*/}
+                {/*    variant="ghost"*/}
+                {/*    size="icon"*/}
+                {/*    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}*/}
+                {/*    className="h-9 w-9"*/}
+                {/*>*/}
+                {/*    <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />*/}
+                {/*    <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />*/}
+                {/*    <span className="sr-only">Toggle theme</span>*/}
+                {/*</Button>*/}
 
                 {/* Right: Social Icons */}
                 <div className="flex items-center gap-3">

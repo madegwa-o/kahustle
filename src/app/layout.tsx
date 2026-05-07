@@ -161,7 +161,7 @@ export default function RootLayout({
                     {/*<Header />*/}
                     {children}
 
-                    {/*<Footer />*/}
+                    <Footer />
                     <Analytics />
                 </Suspense>
 
