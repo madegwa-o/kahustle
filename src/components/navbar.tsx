@@ -21,22 +21,22 @@ const navLinks = [
         label: "Vehicles",
         href: "/vehicles",
         children: [
-            { label: "Cars", href: "/cars/cars" },
-            { label: "Motorbikes & Scooters", href: "/cars/motorbikes" },
-            { label: "Trucks, Vans & Buses", href: "/cars/trucks" },
-            { label: "Auto Parts & Accessories", href: "/cars/accessories" },
-            { label: "Bicycles & 3 Wheelers", href: "/cars/bicycles" },
+            { label: "Cars", href: "/vehicles/cars" },
+            { label: "Motorbikes & Scooters", href: "/vehicles/motorbikes" },
+            { label: "Trucks, Vans & Buses", href: "/vehicles/trucks" },
+            { label: "Auto Parts & Accessories", href: "/vehicles/accessories" },
+            { label: "Bicycles & 3 Wheelers", href: "/vehicles/bicycles" },
         ]
     },
     {
         label: "Construction Freelancer",
         href: "/construction-freelancers",
         children: [
-            { label: "Cars", href: "/construction-freelancers/plumber" },
-            { label: "Motorbikes & Scooters", href: "/construction-freelancers/building-construction" },
-            { label: "Trucks, Vans & Buses", href: "/construction-freelancers/electrician" },
-            { label: "Auto Parts & Accessories", href: "/construction-freelancers/masonry" },
-            { label: "Bicycles & 3 Wheelers", href: "/construction-freelancers/carpentry" },
+            { label: "Plumber", href: "/construction-freelancers/plumber" },
+            { label: "Building Construction", href: "/construction-freelancers/building-construction" },
+            { label: "Electrician", href: "/construction-freelancers/electrician" },
+            { label: "Masonry", href: "/construction-freelancers/masonry" },
+            { label: "Carpentry", href: "/construction-freelancers/carpentry" },
         ]
     },
     {
@@ -52,9 +52,9 @@ const navLinks = [
         label: "Properties",
         href: "/properties",
         children: [
-            { label: "Apartments & Flats", href: "/properties/cars" },
-            { label: "Houses", href: "/properties/motorbikes" },
-            { label: "Commercial Property", href: "/properties/commercial_property" },
+            { label: "Apartments & Flats", href: "/properties/apartments" },
+            { label: "Houses", href: "/properties/houses" },
+            { label: "Commercial Property", href: "/properties/commercial" },
             { label: "Plots & Land", href: "/properties/plots" },
         ]
     },
