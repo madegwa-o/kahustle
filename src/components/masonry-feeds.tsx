@@ -170,7 +170,7 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
                                         {product.images.map((image, idx) => (
                                             <Link
                                                 key={image._id}
-                                                href={`/shop/${product.shop._id}?product=${product._id}`}
+                                                href={`/product/${product._id}`}
                                                 className="relative flex-shrink-0 w-full"
                                             >
                                                 <div className="relative w-full" style={{ height: `${height}px` }}>
@@ -189,7 +189,7 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
                                     <ScrollBar orientation="horizontal" className="h-2" />
                                 </ScrollArea>
                             ) : (
-                                <Link href={`/shop/${product.shop._id}?product=${product._id}`} className="relative block">
+                                <Link href={`/product/${product._id}`} className="relative block">
                                     <Image
                                         src={`/api/r2/images/${encodeURIComponent(product.images?.[0]?.url || "/placeholder.svg")}`}
                                         alt={product.images?.[0]?.alt || product.name}
@@ -203,7 +203,7 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
                             )}
 
                             {/* Product Info */}
-                            <Link href={`/shop/${product.shop._id}?product=${product._id}`} className="block p-4">
+                            <Link href={`/product/${product._id}`} className="block p-4">
                                 <h3 className="font-sans text-sm font-medium text-foreground">{product.name}</h3>
                                 <p className="mt-1 text-xs text-muted-foreground">sh{product.price.toFixed(2)}</p>
                                 <p className="mt-1 text-xs text-muted-foreground/70">{product.shop.name}</p>

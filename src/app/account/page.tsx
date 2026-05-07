@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { User, CreditCard, History, Settings, Bell, Shield, Loader2, Key } from "lucide-react"
+import { User, CreditCard, History, Settings, Bell, Shield, Loader2, Key, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useRouter } from "next/navigation"
 import {usePushNotifications} from "@/hooks/use-push-notifications";
 import ApiKeysManager from "@/components/api-keys-manager";
+import AccountListingsTab from "@/components/account-listings-tab";
 
 export default function AccountPage() {
     const { data: session, status } = useSession()
@@ -114,13 +115,18 @@ export default function AccountPage() {
             </div>
 
             <Tabs defaultValue="setup" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
                     <TabsTrigger value="setup">Setup</TabsTrigger>
+                    <TabsTrigger value="listings">Listings</TabsTrigger>
                     <TabsTrigger value="profile">Profile</TabsTrigger>
                     <TabsTrigger value="share">Share</TabsTrigger>
                     <TabsTrigger value="settings">Settings</TabsTrigger>
                 </TabsList>
 
+
+                <TabsContent value="listings" className="space-y-6">
+                    <AccountListingsTab />
+                </TabsContent>
 
                 <TabsContent value="setup" className="space-y-6">
                     <Card>

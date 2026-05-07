@@ -93,17 +93,17 @@ export function Navbar() {
     return (
         <header
             ref={menuRef}
-            className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 shadow-sm"
+            className="sticky top-0 z-50 w-full bg-card border-b border-border shadow-sm"
         >
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
 
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 shrink-0">
                     <span className="font-extrabold text-2xl tracking-tight">
-                        <span className="text-[#1a7a3c]">K</span>
-                        <span className="text-gray-900">AHUSTLE</span>
+                        <span className="text-primary">K</span>
+                        <span className="text-foreground">AHUSTLE</span>
                     </span>
-                    <span className="hidden sm:block text-[10px] font-semibold text-gray-400 leading-tight mt-1">
+                    <span className="hidden sm:block text-[10px] font-semibold text-muted-foreground leading-tight mt-1">
                         Kenyan Owned Classifieds
                     </span>
                 </Link>
@@ -114,7 +114,7 @@ export function Navbar() {
                         link.children ? (
                             <DropdownMenu key={link.href}>
                                 <DropdownMenuTrigger asChild>
-                                    <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:text-[#1a7a3c] hover:bg-green-50 transition-colors">
+                                    <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-foreground rounded-md hover:text-primary hover:bg-secondary transition-colors">
                                         {link.label}
                                         <ChevronDown className="h-3.5 w-3.5" />
                                     </button>
@@ -133,7 +133,7 @@ export function Navbar() {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:text-[#1a7a3c] hover:bg-green-50 transition-colors"
+                                className="px-3 py-2 text-sm font-medium text-foreground rounded-md hover:text-primary hover:bg-secondary transition-colors"
                             >
                                 {link.label}
                             </Link>
@@ -147,7 +147,7 @@ export function Navbar() {
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="hidden md:flex items-center gap-1.5 text-gray-600 hover:text-[#1a7a3c] hover:bg-green-50"
+                        className="hidden md:flex items-center gap-1.5 text-muted-foreground hover:text-primary hover:bg-secondary"
                         asChild
                     >
                         <Link href="/live-chat">
@@ -159,7 +159,7 @@ export function Navbar() {
                     {/* Post Ad CTA */}
                     <Button
                         size="sm"
-                        className="hidden sm:flex items-center gap-1.5 bg-[#1a7a3c] hover:bg-[#155f30] text-white font-semibold rounded-md"
+                        className="hidden sm:flex items-center gap-1.5 bg-primary hover:opacity-90 text-primary-foreground font-semibold rounded-md"
                         asChild
                     >
                         <Link href="/post-ad">
@@ -178,7 +178,7 @@ export function Navbar() {
                                     <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0">
                                         <Avatar className="h-9 w-9">
                                             <AvatarImage src={session.user.image || undefined} alt={session.user.name || "User"} />
-                                            <AvatarFallback className="bg-[#1a7a3c] text-white text-xs font-bold">
+                                            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
                                                 {getUserInitials(session.user.name)}
                                             </AvatarFallback>
                                         </Avatar>
@@ -187,7 +187,7 @@ export function Navbar() {
                                 <DropdownMenuContent align="end" className="w-56">
                                     <DropdownMenuLabel>
                                         <p className="text-sm font-semibold">{session.user.name}</p>
-                                        <p className="text-xs text-gray-400">{session.user.email}</p>
+                                        <p className="text-xs text-muted-foreground">{session.user.email}</p>
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>
@@ -206,7 +206,7 @@ export function Navbar() {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : (
-                            <Button variant="outline" size="sm" asChild className="border-gray-200 text-gray-700 hover:border-[#1a7a3c] hover:text-[#1a7a3c]">
+                            <Button variant="outline" size="sm" asChild className="border-border text-foreground hover:border-primary hover:text-primary">
                                 <Link href="/signin">
                                     <LogIn className="mr-1.5 h-4 w-4" />
                                     Login / Register
@@ -227,27 +227,27 @@ export function Navbar() {
                 </div>
             </div>
 
-            {/* Mobile Menu */}
+                {/* Mobile Menu */}
             {isMenuOpen && (
-                <div className="lg:hidden border-t border-gray-100 bg-white">
+                <div className="lg:hidden border-t border-border bg-card">
                     <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
                         {navLinks.map((link) =>
                             link.children ? (
                                 <div key={link.href}>
                                     <button
-                                        className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700 rounded-md hover:bg-green-50 hover:text-[#1a7a3c] transition-colors"
+                                        className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-foreground rounded-md hover:bg-secondary hover:text-primary transition-colors"
                                         onClick={() => setOpenDropdown(openDropdown === link.href ? null : link.href)}
                                     >
                                         {link.label}
                                         <ChevronDown className={`h-4 w-4 transition-transform ${openDropdown === link.href ? "rotate-180" : ""}`} />
                                     </button>
                                     {openDropdown === link.href && (
-                                        <div className="ml-4 mt-1 flex flex-col gap-1 border-l-2 border-green-100 pl-3">
+                                        <div className="ml-4 mt-1 flex flex-col gap-1 border-l-2 border-secondary pl-3">
                                             {link.children.map((child) => (
                                                 <Link
                                                     key={child.href}
                                                     href={child.href}
-                                                    className="px-3 py-2 text-sm text-gray-600 hover:text-[#1a7a3c] transition-colors"
+                                                    className="px-3 py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
                                                     onClick={() => setIsMenuOpen(false)}
                                                 >
                                                     {child.label}
@@ -260,7 +260,7 @@ export function Navbar() {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className="px-3 py-2.5 text-sm font-medium text-gray-700 rounded-md hover:bg-green-50 hover:text-[#1a7a3c] transition-colors"
+                                    className="px-3 py-2.5 text-sm font-medium text-foreground rounded-md hover:bg-secondary hover:text-primary transition-colors"
                                     onClick={() => setIsMenuOpen(false)}
                                 >
                                     {link.label}
@@ -269,9 +269,9 @@ export function Navbar() {
                         )}
 
                         {/* Mobile CTA + Auth */}
-                        <div className="mt-3 pt-3 border-t border-gray-100 flex flex-col gap-2">
+                        <div className="mt-3 pt-3 border-t border-border flex flex-col gap-2">
                             <Button
-                                className="w-full bg-[#1a7a3c] hover:bg-[#155f30] text-white font-semibold"
+                                className="w-full bg-primary hover:opacity-90 text-primary-foreground font-semibold"
                                 asChild
                                 onClick={() => setIsMenuOpen(false)}
                             >
@@ -286,19 +286,19 @@ export function Navbar() {
                                     <div className="flex items-center gap-3 px-1 py-1">
                                         <Avatar className="h-9 w-9">
                                             <AvatarImage src={session.user.image || undefined} />
-                                            <AvatarFallback className="bg-[#1a7a3c] text-white text-xs font-bold">
+                                            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
                                                 {getUserInitials(session.user.name)}
                                             </AvatarFallback>
                                         </Avatar>
                                         <div>
                                             <p className="text-sm font-semibold">{session.user.name}</p>
-                                            <p className="text-xs text-gray-400">{session.user.email}</p>
+                                            <p className="text-xs text-muted-foreground">{session.user.email}</p>
                                         </div>
                                     </div>
                                     <Button
                                         variant="outline"
-                                        className="w-full text-red-500 border-red-100 hover:bg-red-50"
-                                        onClick={() => { setIsMenuOpen(false); handleSignOut() }}
+                                        className="w-full"
+                                        asChild onClick={() => setIsMenuOpen(false)}
                                     >
                                         Sign Out
                                     </Button>
