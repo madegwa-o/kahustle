@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { Plus, Edit2, Trash2, Loader2, Eye } from "lucide-react"
+import { Plus, Edit2, Trash2, Loader2, Eye, Upload, X, ImagePlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
@@ -27,6 +27,7 @@ export default function AccountListingsTab() {
     const [editingProduct, setEditingProduct] = useState<Product | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
+    const [uploadingImages, setUploadingImages] = useState(false)
 
     const [formData, setFormData] = useState({
         name: "",
@@ -107,6 +108,64 @@ export default function AccountListingsTab() {
     const handleCloseDialog = () => {
         setOpenDialog(false)
         setEditingProduct(null)
+    }
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files
+        if (!files) return
+
+        // Check max 3 images
+        if (formData.images.length + files.length > 3) {
+            setError(`Maximum 3 images allowed. You have ${formData.images.length} already.`)
+            return
+        }
+
+        setUploadingImages(true)
+        setError(null)
+
+        try {
+            const newImages: string[] = []
+
+            for (const file of Array.from(files)) {
+                const formDataUpload = new FormData()
+                formDataUpload.append("file", file)
+
+                const response = await fetch("/api/upload", {
+                    method: "POST",
+                    body: formDataUpload,
+                })
+
+                const data = await response.json()
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Upload failed")
+                }
+
+                newImages.push(data.url)
+            }
+
+            setFormData({
+                ...formData,
+                images: [...formData.images, ...newImages],
+            })
+            setSuccess(`${newImages.length} image(s) uploaded successfully!`)
+        } catch (err) {
+            console.error("Error uploading images:", err)
+            setError(err instanceof Error ? err.message : "Failed to upload images")
+        } finally {
+            setUploadingImages(false)
+            // Reset file input
+            if (e.target) {
+                e.target.value = ""
+            }
+        }
+    }
+
+    const removeImage = (index: number) => {
+        setFormData({
+            ...formData,
+            images: formData.images.filter((_, i) => i !== index),
+        })
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -225,7 +284,7 @@ export default function AccountListingsTab() {
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                         <CardTitle className="flex items-center gap-2">
-                            <Package className="h-5 w-5" />
+                            <ImagePlus className="h-5 w-5" />
                             My Listings
                         </CardTitle>
                         <CardDescription>
@@ -290,6 +349,9 @@ export default function AccountListingsTab() {
                                                 <Eye className="h-3 w-3" />
                                                 {product.views} views
                                             </span>
+                                            <span className="text-muted-foreground flex items-center gap-1">
+                                                📸 {product.images.length}/3
+                                            </span>
                                         </div>
                                     </div>
 
@@ -336,7 +398,7 @@ export default function AccountListingsTab() {
             </Card>
 
             <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>
                             {editingProduct ? "Edit Listing" : "Create New Listing"}
@@ -419,16 +481,94 @@ export default function AccountListingsTab() {
                             </select>
                         </div>
 
+                        {/* Image Upload Section */}
+                        <div className="space-y-3">
+                            <Label className="text-base font-semibold">
+                                Product Images ({formData.images.length}/3)
+                            </Label>
+                            <p className="text-sm text-muted-foreground">
+                                Upload up to 3 high-quality images of your product
+                            </p>
+
+                            {/* Image Preview Grid */}
+                            {formData.images.length > 0 && (
+                                <div className="grid grid-cols-3 gap-3">
+                                    {formData.images.map((image, index) => (
+                                        <div key={index} className="relative group">
+                                            <div className="relative w-full aspect-square rounded-lg overflow-hidden border border-border">
+                                                <Image
+                                                    src={image}
+                                                    alt={`Product image ${index + 1}`}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(index)}
+                                                className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Upload Button */}
+                            {formData.images.length < 3 && (
+                                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors">
+                                    <input
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                        disabled={uploadingImages || isCreating}
+                                        className="hidden"
+                                        id="image-upload"
+                                    />
+                                    <label
+                                        htmlFor="image-upload"
+                                        className="flex flex-col items-center gap-2 cursor-pointer"
+                                    >
+                                        {uploadingImages ? (
+                                            <>
+                                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                                <p className="text-sm text-muted-foreground">
+                                                    Uploading...
+                                                </p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload className="h-8 w-8 text-muted-foreground" />
+                                                <div>
+                                                    <p className="font-medium">
+                                                        Click to upload or drag and drop
+                                                    </p>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        PNG, JPG, GIF up to 5MB
+                                                    </p>
+                                                </div>
+                                            </>
+                                        )}
+                                    </label>
+                                </div>
+                            )}
+                        </div>
+
                         <DialogFooter>
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={handleCloseDialog}
-                                disabled={isCreating}
+                                disabled={isCreating || uploadingImages}
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={isCreating}>
+                            <Button
+                                type="submit"
+                                disabled={isCreating || uploadingImages}
+                            >
                                 {isCreating ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -445,6 +585,3 @@ export default function AccountListingsTab() {
         </div>
     )
 }
-
-// Import Package icon
-import { Package } from "lucide-react"

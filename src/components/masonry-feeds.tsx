@@ -11,19 +11,17 @@ interface PopulatedProduct {
     _id: string
     name: string
     price: number
-    shop: {
-        _id: string
-        name: string
-    }
-    category: {
-        _id: string
-        name: string
-    }
-    images: Array<{
-        _id: string
+    category: string
+    userId?: string
+    images: string[] | Array<{
+        _id?: string
         url: string
         alt?: string
     }>
+    shop?: {
+        _id: string
+        name: string
+    }
 }
 
 interface PaginationData {
@@ -156,7 +154,11 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
             <div className="columns-1 gap-4 space-y-4 sm:columns-2 lg:columns-3 xl:columns-4">
                 {products.map((product) => {
                     const height = getProductHeight(product._id)
-                    const hasMultipleImages = product.images && product.images.length > 1
+                    // Handle both string[] and object[] image formats
+                    const imageUrls = (product.images || []).map(img => 
+                        typeof img === 'string' ? img : img.url
+                    ).filter(Boolean)
+                    const hasMultipleImages = imageUrls && imageUrls.length > 1
 
                     return (
                         <div
@@ -167,16 +169,16 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
                             {hasMultipleImages ? (
                                 <ScrollArea className="w-full">
                                     <div className="flex gap-0">
-                                        {product.images.map((image, idx) => (
+                                        {imageUrls.map((imageUrl, idx) => (
                                             <Link
-                                                key={image._id}
+                                                key={idx}
                                                 href={`/product/${product._id}`}
                                                 className="relative flex-shrink-0 w-full"
                                             >
                                                 <div className="relative w-full" style={{ height: `${height}px` }}>
                                                     <Image
-                                                        src={`/api/r2/images/${encodeURIComponent(image.url)}`}
-                                                        alt={image.alt || `${product.name} - Image ${idx + 1}`}
+                                                        src={imageUrl}
+                                                        alt={`${product.name} - Image ${idx + 1}`}
                                                         fill
                                                         loading="lazy"
                                                         className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -191,8 +193,8 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
                             ) : (
                                 <Link href={`/product/${product._id}`} className="relative block">
                                     <Image
-                                        src={`/api/r2/images/${encodeURIComponent(product.images?.[0]?.url || "/placeholder.svg")}`}
-                                        alt={product.images?.[0]?.alt || product.name}
+                                        src={imageUrls?.[0] || "/placeholder.svg"}
+                                        alt={product.name}
                                         width={300}
                                         height={height}
                                         loading="lazy"
@@ -205,11 +207,11 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
                             {/* Product Info */}
                             <Link href={`/product/${product._id}`} className="block p-4">
                                 <h3 className="font-sans text-sm font-medium text-foreground">{product.name}</h3>
-                                <p className="mt-1 text-xs text-muted-foreground">sh{product.price.toFixed(2)}</p>
-                                <p className="mt-1 text-xs text-muted-foreground/70">{product.shop.name}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">KES {product.price.toLocaleString()}</p>
+                                <p className="mt-1 text-xs text-muted-foreground/70">{product.category}</p>
                                 {hasMultipleImages && (
                                     <p className="mt-1 text-xs text-muted-foreground/50">
-                                        {product.images.length} images • Scroll to view →
+                                        {imageUrls.length} images • Scroll to view →
                                     </p>
                                 )}
                             </Link>
