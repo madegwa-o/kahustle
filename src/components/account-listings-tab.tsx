@@ -60,7 +60,7 @@ export default function AccountListingsTab() {
             if (!session?.user) return
 
             try {
-                const response = await fetch(`/api/products?userId=${session.user._id}`)
+                const response = await fetch(`/api/products?userId=${session.user.id}`)
                 const data = await response.json()
 
                 if (data.success) {
