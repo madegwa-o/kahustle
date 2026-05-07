@@ -15,6 +15,7 @@ import { NotificationDisplay } from "@/components/notifications/notification-dis
 import ChatbotWidget from "@/components/chatbot-widget";
 import ContactNav from "@/components/contact-nav";
 import {Navbar} from "@/components/navbar";
+import {Footer} from "react-day-picker";
 
 // -----------------
 // Font Configuration
@@ -163,6 +164,7 @@ export default function RootLayout({
                     <Analytics />
                 </Suspense>
 
+                <Footer />
                 <NotificationDisplay />
                 <AuthErrorHandlerWrapper />
                 <InstallPrompt />
