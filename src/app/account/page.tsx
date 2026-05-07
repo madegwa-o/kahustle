@@ -114,9 +114,8 @@ export default function AccountPage() {
                 <p className="text-muted-foreground">Manage your profile, API keys, and account settings.</p>
             </div>
 
-            <Tabs defaultValue="setup" className="space-y-6">
+            <Tabs defaultValue="listings" className="space-y-6">
                 <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
-                    <TabsTrigger value="setup">Setup</TabsTrigger>
                     <TabsTrigger value="listings">Listings</TabsTrigger>
                     <TabsTrigger value="profile">Profile</TabsTrigger>
                     <TabsTrigger value="share">Share</TabsTrigger>
@@ -128,67 +127,7 @@ export default function AccountPage() {
                     <AccountListingsTab />
                 </TabsContent>
 
-                <TabsContent value="setup" className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Key className="h-5 w-5" />
-                                API Keys
-                            </CardTitle>
-                            <CardDescription>
-                                Manage API keys for integrating with external applications and services.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ApiKeysManager />
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <CreditCard className="h-5 w-5" />
-                                Withdraw Accounts
-                            </CardTitle>
-                            <CardDescription>Add accounts that you will use to withdraw your funds to.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="space-y-4 pt-4 border-t">
-                                <h3 className="font-semibold">My Accounts</h3>
-                                <div className="flex items-center justify-between p-4 border rounded-lg">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-14 bg-muted rounded flex items-center justify-center">
-                                            <span className="font-mono text-xs">VISA</span>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-sm">•••• •••• •••• 4242</p>
-                                            <p className="text-muted-foreground text-xs">Expires 12/26</p>
-                                        </div>
-                                    </div>
-                                    <Button variant="outline" size="sm" className="bg-transparent">
-                                        Update
-                                    </Button>
-                                </div>
-
-                                <div className="flex items-center justify-between p-4 border rounded-lg">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-14 bg-muted rounded flex items-center justify-center">
-                                            <span className="font-mono text-xs">M-PESA</span>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-sm">07 4242 4242</p>
-                                            <p className="text-muted-foreground text-xs">Safaricom Kenya</p>
-                                        </div>
-                                    </div>
-                                    <Button variant="outline" size="sm" className="bg-transparent">
-                                        Update
-                                    </Button>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
+               
                 <TabsContent value="profile" className="space-y-6">
                     <Card>
                         <CardHeader>
