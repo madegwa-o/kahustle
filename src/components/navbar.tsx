@@ -69,7 +69,6 @@ export function Navbar() {
 
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 shrink-0">
-                    {/* Replace with <Image> once you have the actual logo asset */}
                     <span className="font-extrabold text-2xl tracking-tight">
                         <span className="text-[#1a7a3c]">K</span>
                         <span className="text-gray-900">AHUSTLE</span>

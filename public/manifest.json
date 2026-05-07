@@ -1,14 +1,14 @@
 {
-  "name": "Paysuit Fintech — M-Pesa Payments for Developers",
-  "short_name": "Paysuit",
-  "description": "Add M-Pesa payments to your apps in minutes. One API call, instant settlement, zero bureaucracy.",
+  "name": "Kahustle – Kenya's Hustle Marketplace",
+  "short_name": "Kahustle",
+  "description": "Buy, sell and rent cars and properties, find a job or hire a freelancer. Safe, convenient, built for the common mwananchi.",
   "lang": "en",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FFFFFF",
-  "theme_color": "#00C853",
+  "theme_color": "#1a7a3c",
   "icons": [
     {
       "src": "/icons/android-chrome-192x192.png",
@@ -41,10 +41,10 @@
   ],
   "shortcuts": [
     {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "View wallet balance, transactions and API keys.",
-      "url": "/dashboard",
+      "name": "Post an Ad",
+      "short_name": "Post Ad",
+      "description": "List your car, property, job or service in minutes.",
+      "url": "/post-ad",
       "icons": [
         {
           "src": "/icons/favicon-96x96.png",
@@ -53,10 +53,10 @@
       ]
     },
     {
-      "name": "Transactions",
-      "short_name": "Txns",
-      "description": "Track payments in real-time.",
-      "url": "/transactions",
+      "name": "Browse Cars",
+      "short_name": "Cars",
+      "description": "Find cars for sale or hire across Kenya.",
+      "url": "/cars",
       "icons": [
         {
           "src": "/icons/favicon-96x96.png",
@@ -65,10 +65,22 @@
       ]
     },
     {
-      "name": "API Docs",
-      "short_name": "Docs",
-      "description": "Integration guides and SDK reference.",
-      "url": "/docs",
+      "name": "Browse Properties",
+      "short_name": "Properties",
+      "description": "Houses and land for sale or rent.",
+      "url": "/properties",
+      "icons": [
+        {
+          "src": "/icons/favicon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Find a Job",
+      "short_name": "Jobs",
+      "description": "Browse the latest job listings in Kenya.",
+      "url": "/careers/jobseeker",
       "icons": [
         {
           "src": "/icons/favicon-96x96.png",
@@ -77,7 +89,7 @@
       ]
     }
   ],
-  "categories": ["finance", "developer-tools", "business", "payments"],
+  "categories": ["shopping", "classifieds", "business", "lifestyle"],
   "dir": "ltr",
   "related_applications": [],
   "prefer_related_applications": false

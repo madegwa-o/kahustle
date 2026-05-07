@@ -97,8 +97,12 @@ export default function SignInPage() {
         <div className="min-h-screen flex items-center justify-center px-4 py-12">
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold text-center">Welcome to Paysuit</CardTitle>
-                    <CardDescription className="text-center">Sign in to access your Paysuit account</CardDescription>
+                    <CardTitle className="text-2xl font-bold text-center">
+                        Welcome to Kahustle
+                    </CardTitle>
+                    <CardDescription className="text-center">
+                        Sign in to post ads, save listings and manage your hustle
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {error && (

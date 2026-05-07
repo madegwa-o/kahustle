@@ -4,8 +4,11 @@ export async function GET() {
     const body = `
 User-agent: *
 Allow: /
+Disallow: /account
+Disallow: /my-ads
+Disallow: /api/
 
-Sitemap: https://paysuit.aistartupclub.com/sitemap.xml
+Sitemap: https://kahustle.co.ke/sitemap.xml
 `;
 
     return new NextResponse(body, {

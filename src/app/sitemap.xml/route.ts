@@ -1,18 +1,23 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-    const baseUrl = "https://paysuit.aistartupclub.com";
+    const baseUrl = "https://kahustle.co.ke";
 
     const pages = [
         "",
-        "/daraja-tester",
-        "/wallet",
-        "/transactions",
-        "/pricing",
-        "/history",
+        "/cars",
+        "/properties",
+        "/careers",
+        "/careers/employer",
+        "/careers/jobseeker",
+        "/construction-freelancers",
+        "/post-ad",
+        "/my-ads",
         "/account",
         "/signin",
-        "/docs",
+        "/contact",
+        "/about",
+        "/live-chat",
     ];
 
     const urls = pages
@@ -21,8 +26,8 @@ export async function GET() {
   <url>
     <loc>${baseUrl}${page}</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>${page === "" ? "1.0" : "0.7"}</priority>
+    <changefreq>${page === "" ? "hourly" : "weekly"}</changefreq>
+    <priority>${page === "" ? "1.0" : page === "/post-ad" ? "0.9" : "0.7"}</priority>
   </url>`
         )
         .join("");

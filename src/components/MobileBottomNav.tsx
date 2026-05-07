@@ -1,6 +1,7 @@
 "use client";
 
-import { Wallet2, ReceiptText, UserCircle2 } from "lucide-react";
+import {ShoppingBag, Heart, Store, ShoppingCartIcon} from "lucide-react";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,34 +13,49 @@ export default function MobileBottomNav() {
 
     const tabs = [
         {
-            href: "/wallet",
-            icon: Wallet2, // Represents your M-Pesa wallet
-            label: "Wallet",
+            href: "/",
+            icon: ShoppingBag, // Represents buying or browsing products
+            label: "Buy",
         },
         {
-            href: "/transactions",
-            icon: ReceiptText, // For receipts and payment history
-            label: "Transactions",
+            href: "/my-cart",
+            icon: ShoppingCartIcon, // Universally recognized for saved/favorite items
+            label: "My Cart",
         },
         {
-            href: "/account",
-            icon: UserCircle2, // For user profile & account settings
-            label: "Account",
+            href: "/my-shop",
+            icon: Store, // Perfect for representing the user's shop
+            label: "My Shop",
         },
     ];
 
+
+    // Hide/show nav on scroll
     useEffect(() => {
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
-            if (currentScrollY > lastScrollY && currentScrollY > 80) setIsVisible(false);
-            else setIsVisible(true);
+
+            if (currentScrollY > lastScrollY && currentScrollY > 80) {
+                // Scrolling down & past threshold
+                setIsVisible(false);
+            } else {
+                // Scrolling up
+                setIsVisible(true);
+            }
+
             setLastScrollY(currentScrollY);
         };
+
         window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, [lastScrollY]);
 
-    const isActive = (href: string) => pathname?.startsWith(href);
+    const isActive = (href: string) => {
+        if (href === "/") {
+            return pathname === "/";
+        }
+        return pathname?.startsWith(href);
+    };
 
     return (
         <nav
@@ -62,6 +78,7 @@ export default function MobileBottomNav() {
                             href={tab.href}
                             className="flex flex-col items-center justify-center flex-1 h-full relative group"
                         >
+                            {/* Active indicator */}
                             {active && (
                                 <div
                                     className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-12 rounded-full"
@@ -71,6 +88,8 @@ export default function MobileBottomNav() {
                                     }}
                                 />
                             )}
+
+                            {/* Icon container */}
                             <div
                                 className={`flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 ${
                                     active ? "scale-105" : "group-hover:scale-105"
@@ -89,6 +108,8 @@ export default function MobileBottomNav() {
                                     }}
                                 />
                             </div>
+
+                            {/* Label */}
                             <span
                                 className={`text-xs mt-1 font-medium transition-all duration-200 ${
                                     active ? "opacity-100" : "opacity-60"
@@ -97,12 +118,14 @@ export default function MobileBottomNav() {
                                     color: active ? "var(--text-primary)" : "var(--text-secondary)",
                                 }}
                             >
-                                {tab.label}
-                            </span>
+								{tab.label}
+							</span>
                         </Link>
                     );
                 })}
             </div>
+
+            {/* Safe area spacer for iOS devices */}
             <div className="h-[env(safe-area-inset-bottom)]" />
         </nav>
     );

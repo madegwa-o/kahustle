@@ -67,7 +67,8 @@ const socials = [
 
 export default function Footer() {
     return (
-        <footer className="bg-[#1c1c1c] text-gray-300">
+
+        <footer className="mt-24 border-t border-border bg-muted/30">
             {/* Main footer grid */}
             <div className="max-w-7xl mx-auto px-6 py-16">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -75,7 +76,7 @@ export default function Footer() {
                     {/* Link columns */}
                     {footerSections.map((section) => (
                         <div key={section.title}>
-                            <h3 className="text-white font-semibold text-base mb-3">
+                            <h3 className="text-sm text-muted-foreground">
                                 {section.title}
                             </h3>
                             {/* Green underline accent */}
@@ -85,7 +86,7 @@ export default function Footer() {
                                     <li key={link.href}>
                                         <Link
                                             href={link.href}
-                                            className="text-sm text-gray-400 hover:text-white transition-colors"
+                                            className="text-sm text-muted-foreground"
                                         >
                                             {link.label}
                                         </Link>
@@ -97,7 +98,7 @@ export default function Footer() {
 
                     {/* Connect with Us */}
                     <div>
-                        <h3 className="text-white font-semibold text-base mb-3">
+                        <h3 className="text-muted-foreground font-semibold text-base mb-3">
                             Connect with Us
                         </h3>
                         <div className="w-8 h-0.5 bg-[#1a7a3c] mb-5" />
