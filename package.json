@@ -73,6 +73,7 @@
     "serwist": "9.2.1",
     "sonner": "^1.7.4",
     "stream": "0.0.3",
+    "swr": "^2.4.1",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
     "topojson-client": "^3.1.0",

@@ -68,7 +68,7 @@ const socials = [
 export default function Footer() {
     return (
 
-        <footer className="mt-24 border-t border-border bg-muted/30">
+        <footer className="mt-24 border-t border-border bg-card">
             {/* Main footer grid */}
             <div className="max-w-7xl mx-auto px-6 py-16">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -76,17 +76,17 @@ export default function Footer() {
                     {/* Link columns */}
                     {footerSections.map((section) => (
                         <div key={section.title}>
-                            <h3 className="text-sm text-muted-foreground">
+                            <h3 className="text-sm text-foreground font-semibold">
                                 {section.title}
                             </h3>
-                            {/* Green underline accent */}
-                            <div className="w-8 h-0.5 bg-[#1a7a3c] mb-5" />
+                            {/* Primary accent underline */}
+                            <div className="w-8 h-0.5 bg-primary mb-5" />
                             <ul className="space-y-3">
                                 {section.links.map((link) => (
                                     <li key={link.href}>
                                         <Link
                                             href={link.href}
-                                            className="text-sm text-muted-foreground"
+                                            className="text-sm text-muted-foreground hover:text-primary transition-colors"
                                         >
                                             {link.label}
                                         </Link>
@@ -98,10 +98,10 @@ export default function Footer() {
 
                     {/* Connect with Us */}
                     <div>
-                        <h3 className="text-muted-foreground font-semibold text-base mb-3">
+                        <h3 className="text-foreground font-semibold text-base mb-3">
                             Connect with Us
                         </h3>
-                        <div className="w-8 h-0.5 bg-[#1a7a3c] mb-5" />
+                        <div className="w-8 h-0.5 bg-primary mb-5" />
                         <div className="flex items-center gap-3">
                             {socials.map((s) => (
                                 <Link
@@ -121,9 +121,9 @@ export default function Footer() {
             </div>
 
             {/* Bottom bar */}
-            <div className="border-t border-white/10 bg-[#161616]">
+            <div className="border-t border-border bg-muted/30">
                 <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-center">
-                    <p className="text-xs text-gray-500 text-center">
+                    <p className="text-xs text-muted-foreground text-center">
                         All Rights Reserved. Copyright 2026. Kahustle, Kenya&apos;s Leading Classified Ads Marketplace.
                     </p>
                 </div>
