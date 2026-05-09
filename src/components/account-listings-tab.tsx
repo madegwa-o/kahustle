@@ -29,6 +29,8 @@ export default function AccountListingsTab() {
     const [success, setSuccess] = useState<string | null>(null)
     const [uploadingImages, setUploadingImages] = useState(false)
 
+
+    const canManageAllProducts = session?.user?.roles?.includes("EDITOR") || session?.user?.roles?.includes("ADMIN")
     const [formData, setFormData] = useState({
         name: "",
         description: "",
@@ -61,7 +63,7 @@ export default function AccountListingsTab() {
             if (!session?.user) return
 
             try {
-                const response = await fetch(`/api/products?userId=${session.user.id}`)
+                const response = await fetch(canManageAllProducts ? `/api/products` : `/api/products?userId=${session.user.id}`)
                 const data = await response.json()
 
                 if (data.success) {
@@ -78,7 +80,7 @@ export default function AccountListingsTab() {
         }
 
         fetchProducts()
-    }, [session?.user])
+    }, [session?.user, canManageAllProducts])
 
     const handleOpenDialog = (product?: Product) => {
         if (product) {

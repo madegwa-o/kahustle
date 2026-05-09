@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next"
 import { connectToDatabase } from "@/lib/db"
 import { Product } from "@/models/Product"
 import { Types } from "mongoose"
+import { Role } from "@/models/User"
 
 export async function GET(
     request: NextRequest,
@@ -94,8 +95,16 @@ export async function PUT(
         // Verify ownership
         const { User } = await import("@/models")
         const user = await User.findOne({ email: session.user.email })
+        if (!user) {
+            return NextResponse.json(
+                { success: false, error: "User not found" },
+                { status: 404 }
+            )
+        }
 
-        if (product.userId.toString() !== user._id.toString()) {
+        const canManageAnyProduct = user?.hasRole?.(Role.EDITOR) || user?.hasRole?.(Role.ADMIN)
+        const isOwner = product.userId.toString() === user?._id?.toString()
+        if (!canManageAnyProduct && !isOwner) {
             return NextResponse.json(
                 { success: false, error: "Unauthorized" },
                 { status: 403 }
@@ -163,8 +172,16 @@ export async function DELETE(
         // Verify ownership
         const { User } = await import("@/models")
         const user = await User.findOne({ email: session.user.email })
+        if (!user) {
+            return NextResponse.json(
+                { success: false, error: "User not found" },
+                { status: 404 }
+            )
+        }
 
-        if (product.userId.toString() !== user._id.toString()) {
+        const canManageAnyProduct = user?.hasRole?.(Role.EDITOR) || user?.hasRole?.(Role.ADMIN)
+        const isOwner = product.userId.toString() === user?._id?.toString()
+        if (!canManageAnyProduct && !isOwner) {
             return NextResponse.json(
                 { success: false, error: "Unauthorized" },
                 { status: 403 }
