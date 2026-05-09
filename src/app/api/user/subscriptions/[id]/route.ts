@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { MembershipPlan } from "@/models/MembershipPlan";
 import { User } from "@/models/User";
-import { connectDB } from "@/lib/db";
+import { connectToDatabase } from "@/lib/db";
 import { Types } from "mongoose";
 
 // GET: Retrieve specific subscription
@@ -20,7 +20,7 @@ export async function GET(
             );
         }
 
-        await connectDB();
+        await connectToDatabase();
 
         const user = await User.findOne({ email: session.user.email });
         if (!user) {
@@ -79,7 +79,7 @@ export async function PATCH(
             );
         }
 
-        await connectDB();
+        await connectToDatabase();
 
         const user = await User.findOne({ email: session.user.email });
         if (!user) {
@@ -130,7 +130,7 @@ export async function DELETE(
             );
         }
 
-        await connectDB();
+        await connectToDatabase();
 
         const user = await User.findOne({ email: session.user.email });
         if (!user) {

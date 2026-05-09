@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { MembershipPlan, PlanCategory, PlanType } from "@/models/MembershipPlan";
 import { User } from "@/models/User";
-import { connectDB } from "@/lib/db";
+import { connectToDatabase } from "@/lib/db";
 
 const PLAN_PRICING = {
     [PlanType.SILVER]: 4000,
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        await connectDB();
+        await connectToDatabase();
 
         const user = await User.findOne({ email: session.user.email });
         if (!user) {
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        await connectDB();
+        await connectToDatabase();
 
         const user = await User.findOne({ email: session.user.email });
         if (!user) {

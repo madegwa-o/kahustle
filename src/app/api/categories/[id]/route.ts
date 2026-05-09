@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { Category } from "@/models/Category";
 import { User, Role } from "@/models/User";
-import { connectDB } from "@/lib/db";
+import { connectToDatabase } from "@/lib/db";
 
 // GET: Retrieve specific category
 export async function GET(
@@ -10,7 +10,7 @@ export async function GET(
     { params }: { params: { id: string } }
 ) {
     try {
-        await connectDB();
+        await connectToDatabase();
 
         const category = await Category.findById(params.id);
 
@@ -67,7 +67,7 @@ export async function PATCH(
             );
         }
 
-        await connectDB();
+        await connectToDatabase();
 
         const category = await Category.findByIdAndUpdate(
             params.id,
@@ -119,7 +119,7 @@ export async function DELETE(
             );
         }
 
-        await connectDB();
+        await connectToDatabase();
 
         const category = await Category.findByIdAndDelete(params.id);
 

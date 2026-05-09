@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { User } from "@/models/User";
 import { Product } from "@/models/Product";
 import { MembershipPlan } from "@/models/MembershipPlan";
-import { connectDB } from "@/lib/db";
+import { connectToDatabase } from "@/lib/db";
 
 export enum PostingRestrictionReason {
     FREE_LIMIT_EXCEEDED = "FREE_LIMIT_EXCEEDED",
@@ -29,7 +29,7 @@ export async function canUserPostAd(
     category: string
 ): Promise<PostingCheckResult> {
     try {
-        await connectDB();
+        await connectToDatabase();
 
         const user = await User.findById(userId);
         if (!user) {

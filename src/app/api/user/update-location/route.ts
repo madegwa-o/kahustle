@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { User } from "@/models/User";
-import { connectDB } from "@/lib/db";
+import { connectToDatabase } from "@/lib/db";
 
 export async function PATCH(request: NextRequest) {
     try {
@@ -37,7 +37,7 @@ export async function PATCH(request: NextRequest) {
             );
         }
 
-        await connectDB();
+        await connectToDatabase();
 
         const user = await User.findOneAndUpdate(
             { email: session.user.email },

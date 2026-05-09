@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { Category, MainCategory } from "@/models/Category";
 import { User, Role } from "@/models/User";
-import { connectDB } from "@/lib/db";
+import { connectToDatabase } from "@/lib/db";
 
 // GET: Retrieve all categories
 export async function GET(request: NextRequest) {
     try {
-        await connectDB();
+        await connectToDatabase();
 
         const categories = await Category.find().sort({ mainCategory: 1 });
 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        await connectDB();
+        await connectToDatabase();
 
         // Check if category already exists
         const existingCategory = await Category.findOne({ mainCategory });
