@@ -2,7 +2,7 @@ import NextAuth, { type DefaultSession } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { addOrUpdateUser, getUserByEmail } from "@/lib/users"
 import { User, Role } from "@/models/User"
-import { connectDB } from "@/lib/db"
+import { connectToDatabase } from "@/lib/db"
 
 // Extend NextAuth types to include roles
 declare module "next-auth" {
@@ -40,7 +40,7 @@ const handler = NextAuth({
                 }
 
                 try {
-                    await connectDB()
+                    await connectToDatabase()
                     
                     // Try to find user by email first, then by username
                     let user = await User.findOne({
