@@ -49,22 +49,6 @@ export interface IUser extends Document {
 	lastLogin?: Date;
 	agreedToTerms?: boolean;
 	agreedToPrivacy?: boolean;
-	darajaCredentials?: {
-		sandbox?: {
-			consumerKey?: string;
-			consumerSecret?: string;
-			passkey?: string;
-			initiatorName?: string;
-			shortCode?: string;
-		};
-		production?: {
-			consumerKey?: string;
-			consumerSecret?: string;
-			passkey?: string;
-			initiatorName?: string;
-			shortCode?: string;
-		};
-	};
 	createdAt: Date;
 	updatedAt: Date;
 
@@ -159,22 +143,6 @@ const UserSchema = new Schema<IUser>(
 		agreedToPrivacy: {
 			type: Boolean,
 			default: false,
-		},
-		darajaCredentials: {
-			sandbox: {
-				consumerKey: { type: String, default: "" },
-				consumerSecret: { type: String, default: "" },
-				passkey: { type: String, default: "" },
-				initiatorName: { type: String, default: "" },
-				shortCode: { type: String, default: "" },
-			},
-			production: {
-				consumerKey: { type: String, default: "" },
-				consumerSecret: { type: String, default: "" },
-				passkey: { type: String, default: "" },
-				initiatorName: { type: String, default: "" },
-				shortCode: { type: String, default: "" },
-			},
 		},
 	},
 	{

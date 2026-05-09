@@ -58,7 +58,7 @@ const navLinks = [
             { label: "Plots & Land", href: "/properties/plots" },
         ]
     },
-    { label: "Pricing", href: "/membership" },
+    { label: "Pricing", href: "/pricing" },
     { label: "Contact", href: "/contact" },
     { label: "About Us", href: "/about" },
 ]
@@ -144,18 +144,6 @@ export function Navbar() {
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-2 shrink-0">
-                    {/* Live Chat */}
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="hidden md:flex items-center gap-1.5 text-muted-foreground hover:text-primary hover:bg-secondary"
-                        asChild
-                    >
-                        <Link href="/live-chat">
-                            <MessageSquare className="h-4 w-4" />
-                            <span className="text-sm font-medium">Live Chat</span>
-                        </Link>
-                    </Button>
 
                     {/* Post Ad CTA */}
                     <Button
@@ -163,7 +151,7 @@ export function Navbar() {
                         className="hidden sm:flex items-center gap-1.5 bg-primary hover:opacity-90 text-primary-foreground font-semibold rounded-md"
                         asChild
                     >
-                        <Link href="/post-ad">
+                        <Link href="/account">
                             <Tag className="h-4 w-4" />
                             Post Your Ad
                         </Link>
@@ -195,7 +183,7 @@ export function Navbar() {
                                         <Link href="/account" className="cursor-pointer">My Account</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
-                                        <Link href="/my-ads" className="cursor-pointer">My Ads</Link>
+                                        <Link href="/account" className="cursor-pointer">My Ads</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
