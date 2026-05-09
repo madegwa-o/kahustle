@@ -11,7 +11,7 @@ export default function AccountUsersTab() {
   const [users, setUsers] = useState<ManagedUser[]>([])
 
   const canManageRoles = session?.user?.roles?.includes("ADMIN")
-  const canManageUsers = canManageRoles || session?.user?.roles?.includes("EDITOR")
+  const canManageUsers = canManageRoles || session?.user?.roles?.includes("STAFF")
 
   useEffect(() => {
     if (!canManageUsers) return
@@ -37,5 +37,5 @@ export default function AccountUsersTab() {
 
   if (!canManageUsers) return <p className="text-sm text-muted-foreground">Only staff or admins can manage users.</p>
 
-  return <div className="space-y-3">{users.map((u) => <div key={u._id} className="border rounded p-3 flex items-center justify-between"><div><p className="font-medium">{u.name}</p><p className="text-xs text-muted-foreground">{u.email} • {u.roles.join(", ")}</p></div><div className="flex gap-2 flex-wrap justify-end"><Button size="sm" variant="outline" onClick={() => toggleActive(u._id, u.isActive)}>{u.isActive ? "Disable" : "Enable"}</Button>{canManageRoles && <><Button size="sm" variant={u.roles.includes("EDITOR") ? "default" : "outline"} onClick={() => toggleRole(u, "EDITOR")}>{u.roles.includes("EDITOR") ? "Remove Staff" : "Add Staff"}</Button><Button size="sm" variant={u.roles.includes("ADMIN") ? "default" : "outline"} onClick={() => toggleRole(u, "ADMIN")}>{u.roles.includes("ADMIN") ? "Remove Admin" : "Add Admin"}</Button></>}</div></div>)}</div>
+  return <div className="space-y-3">{users.map((u) => <div key={u._id} className="border rounded p-3 flex items-center justify-between"><div><p className="font-medium">{u.name}</p><p className="text-xs text-muted-foreground">{u.email} • {u.roles.join(", ")}</p></div><div className="flex gap-2 flex-wrap justify-end"><Button size="sm" variant="outline" onClick={() => toggleActive(u._id, u.isActive)}>{u.isActive ? "Disable" : "Enable"}</Button>{canManageRoles && <><Button size="sm" variant={u.roles.includes("STAFF") ? "default" : "outline"} onClick={() => toggleRole(u, "STAFF")}>{u.roles.includes("STAFF") ? "Remove Staff" : "Add Staff"}</Button><Button size="sm" variant={u.roles.includes("ADMIN") ? "default" : "outline"} onClick={() => toggleRole(u, "ADMIN")}>{u.roles.includes("ADMIN") ? "Remove Admin" : "Add Admin"}</Button></>}</div></div>)}</div>
 }
