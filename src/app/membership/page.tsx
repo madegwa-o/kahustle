@@ -115,6 +115,39 @@ const categories = [
             },
         ],
     },
+    {
+        id: "construction",
+        label: "Construction Freelancers",
+        icon: Building2,
+        description: "For construction professionals and freelance contractors offering services.",
+        plans: [
+            {
+                tier: "Silver",
+                price: "4,000",
+                duration: "90 Days",
+                features: [
+                    "Increased service visibility",
+                    "Priority listing in search",
+                    "Enhanced contact options",
+                    "Project showcase tools",
+                    "Exclusive promotions",
+                ],
+            },
+            {
+                tier: "Gold",
+                price: "5,000",
+                duration: "90 Days",
+                features: [
+                    "Top-tier visibility — highest exposure",
+                    "Advanced performance analytics",
+                    "Priority direct messaging",
+                    "Portfolio showcase features",
+                    "All Silver features included",
+                ],
+                highlight: true,
+            },
+        ],
+    },
 ]
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -257,14 +290,13 @@ export default function MembershipPage() {
                 />
                 <div className="relative max-w-3xl mx-auto px-6 py-20 text-center">
                     <span className="inline-block bg-white/15 text-white text-xs font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full mb-5">
-                        Membership Plans
+                        Pricing Plans
                     </span>
                     <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
-                        Advertise with Greater Reach
+                        Choose Your Plan & Grow Your Business
                     </h1>
                     <p className="text-green-100 text-base sm:text-lg max-w-xl mx-auto">
-                        Upgrade your listing to get seen by more buyers. Choose a plan
-                        that fits your category and budget.
+                        Upgrade your listings to get seen by more buyers and clients. Select the perfect plan for your category and budget.
                     </p>
                 </div>
             </section>

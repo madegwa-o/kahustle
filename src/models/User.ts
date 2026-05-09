@@ -37,14 +37,18 @@ export interface IUser extends Document {
 	_id: Types.ObjectId;
 	name: string;
 	email: string;
+	username?: string;
 	password?: string;
 	image?: string;
 	phone?: string;
 	address?: string;
+	location?: string;
 	roles: Role[];
 	accountType: AccountType;
 	isActive: boolean;
 	lastLogin?: Date;
+	agreedToTerms?: boolean;
+	agreedToPrivacy?: boolean;
 	darajaCredentials?: {
 		sandbox?: {
 			consumerKey?: string;
@@ -88,6 +92,15 @@ const UserSchema = new Schema<IUser>(
 			match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email address"],
 			index: true,
 		},
+		username: {
+			type: String,
+			unique: true,
+			sparse: true,
+			trim: true,
+			minlength: [3, "Username must be at least 3 characters"],
+			maxlength: [20, "Username cannot exceed 20 characters"],
+			match: [/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, underscores, and hyphens"],
+		},
 		password: {
 			type: String,
 			minlength: [6, "Password must be at least 6 characters"],
@@ -103,6 +116,11 @@ const UserSchema = new Schema<IUser>(
 			default: null,
 		},
 		address: {
+			type: String,
+			trim: true,
+			default: null,
+		},
+		location: {
 			type: String,
 			trim: true,
 			default: null,
@@ -133,6 +151,14 @@ const UserSchema = new Schema<IUser>(
 		lastLogin: {
 			type: Date,
 			default: null,
+		},
+		agreedToTerms: {
+			type: Boolean,
+			default: false,
+		},
+		agreedToPrivacy: {
+			type: Boolean,
+			default: false,
 		},
 		darajaCredentials: {
 			sandbox: {
