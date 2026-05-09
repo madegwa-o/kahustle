@@ -18,6 +18,7 @@ import {usePushNotifications} from "@/hooks/use-push-notifications";
 import AccountListingsTab from "@/components/account-listings-tab";
 import AccountUsersTab from "@/components/account-users-tab";
 import AccountCategoriesTab from "@/components/account-categories-tab";
+import { Role } from "@/lib/roles";
 
 export default function AccountPage() {
     const { data: session, status } = useSession()
@@ -81,8 +82,8 @@ export default function AccountPage() {
 
 
     const roles = session?.user?.roles || []
-    const canManageUsers = roles.includes("ADMIN")
-    const canManageCategories = roles.includes("ADMIN") || roles.includes("STAFF")
+    const canManageUsers = roles.includes(Role.ADMIN)
+    const canManageCategories = roles.includes(Role.ADMIN) || roles.includes(Role.STAFF)
 
     const availableTabs = useMemo(() => ([
         { value: "listings", label: "Listings", show: true },

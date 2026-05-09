@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import Image from "next/image"
 import Link from "next/link"
 import type { IProduct } from "@/models/Product"
+import { Role } from "@/lib/roles"
 
 interface Product extends Omit<IProduct, "_id" | "userId"> {
     _id: string
@@ -30,7 +31,7 @@ export default function AccountListingsTab() {
     const [uploadingImages, setUploadingImages] = useState(false)
 
 
-    const canManageAllProducts = session?.user?.roles?.includes("STAFF") || session?.user?.roles?.includes("ADMIN")
+    const canManageAllProducts = session?.user?.roles?.includes(Role.STAFF) || session?.user?.roles?.includes(Role.ADMIN)
     const [formData, setFormData] = useState({
         name: "",
         description: "",

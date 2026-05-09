@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Loader2 } from "lucide-react"
+import { Role } from "@/lib/roles"
 
 const MAIN_CATEGORIES = ["vehicles", "construction-freelancers", "careers", "properties"] as const
 
@@ -27,7 +28,7 @@ export default function AccountCategoriesTab() {
   const { data: session } = useSession()
 
   const canManage = useMemo(
-      () => session?.user?.roles?.includes("STAFF") || session?.user?.roles?.includes("ADMIN"),
+      () => session?.user?.roles?.includes(Role.STAFF) || session?.user?.roles?.includes(Role.ADMIN),
       [session?.user?.roles]
   )
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
+import { Role } from "@/lib/roles"
 
 type ManagedUser = { _id: string; name: string; email: string; roles: string[]; isActive: boolean }
 
@@ -10,8 +11,8 @@ export default function AccountUsersTab() {
   const { data: session } = useSession()
   const [users, setUsers] = useState<ManagedUser[]>([])
 
-  const canManageRoles = session?.user?.roles?.includes("ADMIN")
-  const canManageUsers = canManageRoles || session?.user?.roles?.includes("STAFF")
+  const canManageRoles = session?.user?.roles?.includes(Role.ADMIN)
+  const canManageUsers = canManageRoles || session?.user?.roles?.includes(Role.STAFF)
 
   useEffect(() => {
     if (!canManageUsers) return
@@ -37,5 +38,5 @@ export default function AccountUsersTab() {
 
   if (!canManageUsers) return <p className="text-sm text-muted-foreground">Only staff or admins can manage users.</p>
 
-  return <div className="space-y-3">{users.map((u) => <div key={u._id} className="border rounded p-3 flex items-center justify-between"><div><p className="font-medium">{u.name}</p><p className="text-xs text-muted-foreground">{u.email} • {u.roles.join(", ")}</p></div><div className="flex gap-2 flex-wrap justify-end"><Button size="sm" variant="outline" onClick={() => toggleActive(u._id, u.isActive)}>{u.isActive ? "Disable" : "Enable"}</Button>{canManageRoles && <><Button size="sm" variant={u.roles.includes("STAFF") ? "default" : "outline"} onClick={() => toggleRole(u, "STAFF")}>{u.roles.includes("STAFF") ? "Remove Staff" : "Add Staff"}</Button><Button size="sm" variant={u.roles.includes("ADMIN") ? "default" : "outline"} onClick={() => toggleRole(u, "ADMIN")}>{u.roles.includes("ADMIN") ? "Remove Admin" : "Add Admin"}</Button></>}</div></div>)}</div>
+  return <div className="space-y-3">{users.map((u) => <div key={u._id} className="border rounded p-3 flex items-center justify-between"><div><p className="font-medium">{u.name}</p><p className="text-xs text-muted-foreground">{u.email} • {u.roles.join(", ")}</p></div><div className="flex gap-2 flex-wrap justify-end"><Button size="sm" variant="outline" onClick={() => toggleActive(u._id, u.isActive)}>{u.isActive ? "Disable" : "Enable"}</Button>{canManageRoles && <><Button size="sm" variant={u.roles.includes(Role.STAFF) ? "default" : "outline"} onClick={() => toggleRole(u, Role.STAFF)}>{u.roles.includes(Role.STAFF) ? "Remove Staff" : "Add Staff"}</Button><Button size="sm" variant={u.roles.includes(Role.ADMIN) ? "default" : "outline"} onClick={() => toggleRole(u, Role.ADMIN)}>{u.roles.includes(Role.ADMIN) ? "Remove Admin" : "Add Admin"}</Button></>}</div></div>)}</div>
 }
