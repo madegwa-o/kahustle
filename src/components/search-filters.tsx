@@ -48,9 +48,9 @@ export function SearchFiltersComponent({ categories, onFiltersChange, isLoading 
         return () => clearTimeout(timer)
     }, [search, selectedCategories, priceMin, priceMax, sortBy, sortOrder, onFiltersChange])
 
-    const handleCategoryToggle = useCallback((categoryId: string) => {
+    const handleCategoryToggle = useCallback((categorySlug: string) => {
         setSelectedCategories((prev) =>
-            prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId],
+            prev.includes(categorySlug) ? prev.filter((id) => id !== categorySlug) : [...prev, categorySlug],
         )
     }, [])
 
@@ -183,8 +183,8 @@ export function SearchFiltersComponent({ categories, onFiltersChange, isLoading 
                                     <div key={category._id} className="flex items-center space-x-2">
                                         <Checkbox
                                             id={category._id}
-                                            checked={selectedCategories.includes(category._id)}
-                                            onCheckedChange={() => handleCategoryToggle(category._id)}
+                                            checked={selectedCategories.includes(category.slug)}
+                                            onCheckedChange={() => handleCategoryToggle(category.slug)}
                                             disabled={isLoading}
                                         />
                                         <Label htmlFor={category._id} className="text-sm font-normal cursor-pointer flex-1">

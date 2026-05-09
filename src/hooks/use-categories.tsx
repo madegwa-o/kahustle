@@ -19,8 +19,15 @@ export function useCategories() {
         try {
             const response = await fetch("/api/categories")
             const data = await response.json()
-            if (data.success) {
-                setCategories(data.categories)
+            if (response.ok && Array.isArray(data.categories)) {
+                const normalized = data.categories.flatMap((cat: { _id: string; mainCategory: string; subcategories: string[] }) =>
+                    (cat.subcategories || []).map((sub) => ({
+                        _id: `${cat._id}:${sub}`,
+                        name: sub,
+                        slug: sub.toLowerCase().trim(),
+                    })),
+                )
+                setCategories(normalized)
             } else {
                 setError(data.error || "Failed to fetch categories")
             }
