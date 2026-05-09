@@ -2,10 +2,9 @@
 import { withAuth } from "next-auth/middleware"
 import { NextResponse } from "next/server"
 
-// Define public routes that don't require authentication
+// Define exact public routes that don't require authentication
 const PUBLIC_ROUTES = [
     "/",
-    "/api/images/**",
     "/daraja-tester",
     "/terms-conditions",
     "/privacy-policy",
@@ -16,8 +15,16 @@ const PUBLIC_ROUTES = [
     "/api/mpesa/auth",
     "/api/mpesa/proxy",
     "/api/payments/direct/callback",
-    // Add any other public routes here
-];
+]
+
+// Define public route prefixes for dynamic pages
+const PUBLIC_ROUTE_PREFIXES = [
+    "/product/",
+    "/vehicles",
+    "/properties",
+    "/careers",
+    "/construction-freelancers",
+]
 
 // Define static asset patterns that should always be accessible
 const STATIC_ASSETS = [
@@ -29,80 +36,68 @@ const STATIC_ASSETS = [
     "/_next/static",
     "/_next/image",
     "/icons/",
-];
+]
 
 // Helper function to check if path matches any pattern
 const matchesPattern = (pathname: string, patterns: string[]): boolean => {
-    return patterns.some(pattern => pathname.startsWith(pattern));
-};
+    return patterns.some((pattern) => pathname.startsWith(pattern))
+}
 
 export default withAuth(
     function proxy(req) {
-        const { pathname } = req.nextUrl;
+        const { pathname } = req.nextUrl
 
         // Allow static assets through without any processing
         if (matchesPattern(pathname, STATIC_ASSETS)) {
-            return NextResponse.next();
+            return NextResponse.next()
         }
 
-        // You can add custom logic here for authenticated users
-        // For example, redirect authenticated users away from signin page
-        const token = req.nextauth.token;
+        const token = req.nextauth.token
 
+        // Redirect signed-in users away from signin page
         if (token && pathname === "/signin") {
-            return NextResponse.redirect(new URL("/", req.url));
+            return NextResponse.redirect(new URL("/", req.url))
         }
 
-        return NextResponse.next();
+        return NextResponse.next()
     },
     {
         callbacks: {
             authorized: ({ token, req }) => {
-                const { pathname } = req.nextUrl;
+                const { pathname } = req.nextUrl
 
                 // Always allow static assets
                 if (matchesPattern(pathname, STATIC_ASSETS)) {
-                    return true;
+                    return true
                 }
 
                 // Allow public routes
-                if (PUBLIC_ROUTES.includes(pathname)) {
-                    return true;
+                if (PUBLIC_ROUTES.includes(pathname) || matchesPattern(pathname, PUBLIC_ROUTE_PREFIXES)) {
+                    return true
                 }
 
                 // Auth endpoints are always allowed
                 if (pathname.startsWith("/api/auth")) {
-                    return true;
+                    return true
                 }
 
-                // API routes can have their own auth logic
-                // But by default, protect them
+                // API routes are protected by default
                 if (pathname.startsWith("/api/")) {
-                    return !!token;
+                    return !!token
                 }
 
                 // Everything else requires authentication
-                return !!token;
+                return !!token
             },
         },
         pages: {
             signIn: "/signin",
-            // You can also define error pages
-            // error: "/auth/error",
         },
     }
-);
+)
 
-// Specify which routes this middleware should run on
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - public files (public folder)
-         */
         "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
     ],
-};
+}
