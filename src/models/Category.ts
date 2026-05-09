@@ -1,51 +1,53 @@
+// models/Category.ts
 import { Schema, model, models, Types, Document } from "mongoose";
 
 export enum MainCategory {
-	VEHICLES = "VEHICLES",
-	CONSTRUCTION_FREELANCERS = "CONSTRUCTION_FREELANCERS",
-	CAREERS = "CAREERS",
-	PROPERTIES = "PROPERTIES",
+	VEHICLES = "vehicles",
+	CONSTRUCTION_FREELANCERS = "construction-freelancers",
+	CAREERS = "careers",
+	PROPERTIES = "properties",
+}
+
+export interface ISubcategory {
+	label: string
+	slug: string
 }
 
 export interface ICategory extends Document {
 	_id: Types.ObjectId;
 	mainCategory: MainCategory;
-	subcategories: string[];
+	subcategories: ISubcategory[];
 	createdAt: Date;
 	updatedAt: Date;
 }
+
+const SubcategorySchema = new Schema<ISubcategory>(
+	{
+		label: { type: String, required: true },
+		slug:  { type: String, required: true },
+	},
+	{ _id: false } // no need for individual IDs on subcategories
+)
 
 const CategorySchema = new Schema<ICategory>(
 	{
 		mainCategory: {
 			type: String,
 			enum: Object.values(MainCategory),
-			required: [true, "Main category is required"],
+			required: true,
 			unique: true,
 			index: true,
 		},
 		subcategories: {
-			type: [String],
+			type: [SubcategorySchema],
 			default: [],
-			required: [true, "At least one subcategory is required"],
 			validate: {
-				validator: function(v: string[]) {
-					return v.length > 0;
-				},
+				validator: (v: ISubcategory[]) => v.length > 0,
 				message: "Subcategories array cannot be empty",
 			},
 		},
 	},
-	{
-		timestamps: true,
-		versionKey: false,
-		toJSON: {
-			virtuals: true,
-		},
-		toObject: {
-			virtuals: true,
-		},
-	}
-);
+	{ timestamps: true, versionKey: false }
+)
 
-export const Category = models.Category || model<ICategory>("Category", CategorySchema);
+export const Category = models.Category || model<ICategory>("Category", CategorySchema)

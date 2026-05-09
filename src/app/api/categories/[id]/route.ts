@@ -42,7 +42,7 @@ export async function PATCH(
         }
 
         const user = await User.findOne({ email: session.user.email });
-        if (!user || !user.hasRole(Role.EDITOR)) {
+        if (!user || !user.hasRole(Role.STAFF)) {
             return NextResponse.json(
                 { error: "Unauthorized - STAFF access required" },
                 { status: 403 }
@@ -93,7 +93,7 @@ export async function DELETE(
         }
 
         const user = await User.findOne({ email: session.user.email });
-        if (!user || !user.hasRole(Role.EDITOR)) {
+        if (!user || !user.hasRole(Role.STAFF)) {
             return NextResponse.json(
                 { error: "Unauthorized - STAFF access required" },
                 { status: 403 }

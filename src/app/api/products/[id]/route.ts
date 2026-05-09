@@ -102,7 +102,7 @@ export async function PUT(
             )
         }
 
-        const canManageAnyProduct = user?.hasRole?.(Role.EDITOR) || user?.hasRole?.(Role.ADMIN)
+        const canManageAnyProduct = user?.hasRole?.(Role.STAFF) || user?.hasRole?.(Role.ADMIN)
         const isOwner = product.userId.toString() === user?._id?.toString()
         if (!canManageAnyProduct && !isOwner) {
             return NextResponse.json(
@@ -179,7 +179,7 @@ export async function DELETE(
             )
         }
 
-        const canManageAnyProduct = user?.hasRole?.(Role.EDITOR) || user?.hasRole?.(Role.ADMIN)
+        const canManageAnyProduct = user?.hasRole?.(Role.STAFF) || user?.hasRole?.(Role.ADMIN)
         const isOwner = product.userId.toString() === user?._id?.toString()
         if (!canManageAnyProduct && !isOwner) {
             return NextResponse.json(

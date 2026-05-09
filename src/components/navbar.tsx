@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
-import { Menu, X, LogIn, MessageSquare, ChevronDown, Tag } from "lucide-react"
+import { Menu, X, LogIn, Tag, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useSession, signOut } from "next-auth/react"
 import {
@@ -14,54 +14,73 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import useSWR from "swr"
 
-const navLinks = [
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface SubCategory {
+    label: string
+    href: string
+}
+
+interface NavCategory {
+    label: string
+    href: string
+    children?: SubCategory[]
+}
+
+// ─── Static nav links (no subcategories needed from DB) ──────────────────────
+
+const staticNavLinks: NavCategory[] = [
     { label: "Home", href: "/" },
-    {
-        label: "Vehicles",
-        href: "/vehicles",
-        children: [
-            { label: "Cars", href: "/vehicles/cars" },
-            { label: "Motorbikes & Scooters", href: "/vehicles/motorbikes" },
-            { label: "Trucks, Vans & Buses", href: "/vehicles/trucks" },
-            { label: "Auto Parts & Accessories", href: "/vehicles/accessories" },
-            { label: "Bicycles & 3 Wheelers", href: "/vehicles/bicycles" },
-        ]
-    },
-    {
-        label: "Construction Freelancer",
-        href: "/construction-freelancers",
-        children: [
-            { label: "Plumber", href: "/construction-freelancers/plumber" },
-            { label: "Building Construction", href: "/construction-freelancers/building-construction" },
-            { label: "Electrician", href: "/construction-freelancers/electrician" },
-            { label: "Masonry", href: "/construction-freelancers/masonry" },
-            { label: "Carpentry", href: "/construction-freelancers/carpentry" },
-        ]
-    },
-    {
-        label: "Careers",
-        href: "/careers",
-        children: [
-            { label: "Employers", href: "/careers/employers" },
-            { label: "Local Jobs", href: "/careers/local-jobs" },
-            { label: "Jobseeker", href: "/careers/jobseekers" },
-        ]
-    },
-    {
-        label: "Properties",
-        href: "/properties",
-        children: [
-            { label: "Apartments & Flats", href: "/properties/apartments" },
-            { label: "Houses", href: "/properties/houses" },
-            { label: "Commercial Property", href: "/properties/commercial" },
-            { label: "Plots & Land", href: "/properties/plots" },
-        ]
-    },
     { label: "Pricing", href: "/pricing" },
     { label: "Contact", href: "/contact" },
     { label: "About Us", href: "/about" },
 ]
+
+// Categories that have dynamic subcategories from DB
+const dynamicCategories: { label: string; href: string; slug: string }[] = [
+    { label: "Vehicles", href: "/vehicles", slug: "vehicles" },
+    { label: "Construction Freelancer", href: "/construction-freelancers", slug: "construction-freelancers" },
+    { label: "Careers", href: "/careers", slug: "careers" },
+    { label: "Properties", href: "/properties", slug: "properties" },
+]
+
+// Desired display order
+const navOrder = ["Home", "Vehicles", "Construction Freelancer", "Careers", "Properties", "Pricing", "Contact", "About Us"]
+
+// ─── SWR fetcher ─────────────────────────────────────────────────────────────
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json())
+
+// ─── Hook: fetch all subcategories grouped by parent slug ────────────────────
+
+function useNavCategories() {
+    const { data, error, isLoading } = useSWR<Record<string, SubCategory[]>>("/api/categories/nav", fetcher, {
+        revalidateOnFocus: false,       // don't refetch when tab regains focus
+        revalidateOnReconnect: false,   // don't refetch on reconnect
+        dedupingInterval: 60 * 60 * 1000, // cache for 1 hour
+    })
+
+    return { subcategories: data, error, isLoading }
+}
+
+// ─── Build full nav links merging static + dynamic ───────────────────────────
+
+function buildNavLinks(subcategories?: Record<string, SubCategory[]>): NavCategory[] {
+    const dynamic: NavCategory[] = dynamicCategories.map((cat) => ({
+        label: cat.label,
+        href: cat.href,
+        children: subcategories?.[cat.slug] ?? [],
+    }))
+
+    const all = [...staticNavLinks, ...dynamic]
+    return navOrder
+        .map((label) => all.find((l) => l.label === label))
+        .filter(Boolean) as NavCategory[]
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function getUserInitials(name: string | null | undefined) {
     if (!name) return "U"
@@ -71,8 +90,13 @@ function getUserInitials(name: string | null | undefined) {
         : name.substring(0, 2).toUpperCase()
 }
 
+// ─── Component ───────────────────────────────────────────────────────────────
+
 export function Navbar() {
     const { data: session, status } = useSession()
+    const { subcategories } = useNavCategories()
+    const navLinks = buildNavLinks(subcategories)
+
     const menuRef = useRef<HTMLDivElement>(null)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [openDropdown, setOpenDropdown] = useState<string | null>(null)
@@ -112,7 +136,7 @@ export function Navbar() {
                 {/* Desktop Nav */}
                 <nav className="hidden lg:flex items-center gap-1">
                     {navLinks.map((link) =>
-                        link.children ? (
+                        link.children && link.children.length > 0 ? (
                             <DropdownMenu key={link.href}>
                                 <DropdownMenuTrigger asChild>
                                     <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-foreground rounded-md hover:text-primary hover:bg-secondary transition-colors">
@@ -144,8 +168,6 @@ export function Navbar() {
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-2 shrink-0">
-
-                    {/* Post Ad CTA */}
                     <Button
                         size="sm"
                         className="hidden sm:flex items-center gap-1.5 bg-primary hover:opacity-90 text-primary-foreground font-semibold rounded-md"
@@ -157,7 +179,6 @@ export function Navbar() {
                         </Link>
                     </Button>
 
-                    {/* Auth */}
                     <div className="hidden md:flex items-center">
                         {status === "loading" ? (
                             <div className="h-9 w-9 rounded-full bg-gray-100 animate-pulse" />
@@ -204,7 +225,6 @@ export function Navbar() {
                         )}
                     </div>
 
-                    {/* Mobile Menu Toggle */}
                     <Button
                         variant="ghost"
                         size="icon"
@@ -216,12 +236,12 @@ export function Navbar() {
                 </div>
             </div>
 
-                {/* Mobile Menu */}
+            {/* Mobile Menu */}
             {isMenuOpen && (
                 <div className="lg:hidden border-t border-border bg-card">
                     <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
                         {navLinks.map((link) =>
-                            link.children ? (
+                            link.children && link.children.length > 0 ? (
                                 <div key={link.href}>
                                     <button
                                         className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-foreground rounded-md hover:bg-secondary hover:text-primary transition-colors"
@@ -257,7 +277,6 @@ export function Navbar() {
                             )
                         )}
 
-                        {/* Mobile CTA + Auth */}
                         <div className="mt-3 pt-3 border-t border-border flex flex-col gap-2">
                             <Button
                                 className="w-full bg-primary hover:opacity-90 text-primary-foreground font-semibold"
@@ -284,11 +303,7 @@ export function Navbar() {
                                             <p className="text-xs text-muted-foreground">{session.user.email}</p>
                                         </div>
                                     </div>
-                                    <Button
-                                        variant="outline"
-                                        className="w-full"
-                                        asChild onClick={() => setIsMenuOpen(false)}
-                                    >
+                                    <Button variant="outline" className="w-full" onClick={() => { handleSignOut(); setIsMenuOpen(false) }}>
                                         Sign Out
                                     </Button>
                                 </div>

@@ -19,7 +19,7 @@ export enum Feature {
 
 export enum Role {
 	ADMIN = "ADMIN",
-	EDITOR = "EDITOR",
+	STAFF = "STAFF",
 	USER = "USER",
 }
 
