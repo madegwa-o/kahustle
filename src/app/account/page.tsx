@@ -21,7 +21,7 @@ import AccountCategoriesTab from "@/components/account-categories-tab";
 import { Role } from "@/lib/roles";
 
 export default function AccountPage() {
-    const { data: session, status } = useSession()
+    const { data: session, status, update } = useSession()
     const { isSupported, isSubscribed, subscribeToPush, unsubscribeFromPush } = usePushNotifications();
     const router = useRouter()
     const [emailNotifications, setEmailNotifications] = useState(true)
@@ -38,6 +38,12 @@ export default function AccountPage() {
             router.push("/signin?callbackUrl=/account")
         }
     }, [status, router])
+
+    useEffect(() => {
+        if (status === "authenticated") {
+            void update()
+        }
+    }, [status, update])
 
     const handleSetPassword = async (e: React.FormEvent) => {
         e.preventDefault()
