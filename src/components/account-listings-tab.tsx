@@ -30,7 +30,7 @@ export default function AccountListingsTab() {
     const [uploadingImages, setUploadingImages] = useState(false)
 
 
-    const canManageAllProducts = session?.user?.roles?.includes("EDITOR") || session?.user?.roles?.includes("ADMIN")
+    const canManageAllProducts = session?.user?.roles?.includes("STAFF") || session?.user?.roles?.includes("ADMIN")
     const [formData, setFormData] = useState({
         name: "",
         description: "",

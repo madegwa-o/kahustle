@@ -82,7 +82,7 @@ export default function AccountPage() {
 
     const roles = session?.user?.roles || []
     const canManageUsers = roles.includes("ADMIN")
-    const canManageCategories = roles.includes("ADMIN") || roles.includes("EDITOR")
+    const canManageCategories = roles.includes("ADMIN") || roles.includes("STAFF")
 
     const availableTabs = useMemo(() => ([
         { value: "listings", label: "Listings", show: true },

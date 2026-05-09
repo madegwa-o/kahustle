@@ -5,35 +5,16 @@ import { Category, MainCategory } from "@/models/Category";
 import { User, Role } from "@/models/User";
 import { connectToDatabase } from "@/lib/db";
 
-// GET: fetch all subcategories grouped by parent slug
+// GET: used by AccountCategoriesTab (returns array)
 export async function GET() {
     await connectToDatabase();
 
-    const categories = await Category.find(
-        {},
-        { mainCategory: 1, subcategories: 1 }
-    ).lean<{ mainCategory: string; subcategories: { label: string; slug: string }[] }[]>()
+    const categories = await Category.find({}).lean();
 
-    const grouped = categories.reduce<Record<string, { label: string; href: string }[]>>(
-        (acc, cat) => {
-            const parentSlug = cat.mainCategory // e.g. "vehicles"
-            acc[parentSlug] = cat.subcategories.map((sub) => ({
-                label: sub.label,
-                href: `/${parentSlug}/${sub.slug}`,
-            }))
-            return acc
-        },
-        {}
-    )
-
-    return NextResponse.json(grouped, {
-        headers: {
-            "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=3600",
-        },
-    })
+    return NextResponse.json({ categories });
 }
 
-// POST: Create a new category with subcategories (EDITOR only)
+// POST: Create a new category with subcategories (STAFF only)
 export async function POST(request: NextRequest) {
     try {
         const session = await getServerSession();
@@ -43,7 +24,7 @@ export async function POST(request: NextRequest) {
 
         const user = await User.findOne({ email: session.user.email });
         if (!user || !user.hasRole(Role.STAFF)) {
-            return NextResponse.json({ error: "Unauthorized - EDITOR access required" }, { status: 403 });
+            return NextResponse.json({ error: "Unauthorized - STAFF access required" }, { status: 403 });
         }
 
         const { mainCategory, subcategories } = await request.json();
