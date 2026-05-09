@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation"
 import {usePushNotifications} from "@/hooks/use-push-notifications";
 import ApiKeysManager from "@/components/api-keys-manager";
 import AccountListingsTab from "@/components/account-listings-tab";
+import AccountUsersTab from "@/components/account-users-tab";
 
 export default function AccountPage() {
     const { data: session, status } = useSession()
@@ -115,9 +116,10 @@ export default function AccountPage() {
             </div>
 
             <Tabs defaultValue="listings" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
                     <TabsTrigger value="listings">Listings</TabsTrigger>
                     <TabsTrigger value="profile">Profile</TabsTrigger>
+                    <TabsTrigger value="users">Users</TabsTrigger>
                     <TabsTrigger value="share">Share</TabsTrigger>
                     <TabsTrigger value="settings">Settings</TabsTrigger>
                 </TabsList>
@@ -127,7 +129,11 @@ export default function AccountPage() {
                     <AccountListingsTab />
                 </TabsContent>
 
-               
+
+                <TabsContent value="users" className="space-y-6">
+                    <AccountUsersTab />
+                </TabsContent>
+
                 <TabsContent value="profile" className="space-y-6">
                     <Card>
                         <CardHeader>
