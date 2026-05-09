@@ -58,6 +58,7 @@ const navLinks = [
             { label: "Plots & Land", href: "/properties/plots" },
         ]
     },
+    { label: "Pricing", href: "/membership" },
     { label: "Contact", href: "/contact" },
     { label: "About Us", href: "/about" },
 ]

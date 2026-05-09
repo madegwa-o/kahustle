@@ -1,8 +1,8 @@
 import NextAuth, { type DefaultSession } from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { addOrUpdateUser, getUserByEmail } from "@/lib/users"
-import { Role } from "@/models/User"
+import { User, Role } from "@/models/User"
+import { connectToDatabase } from "@/lib/db"
 
 // Extend NextAuth types to include roles
 declare module "next-auth" {
@@ -28,23 +28,28 @@ declare module "next-auth/jwt" {
 
 const handler = NextAuth({
     providers: [
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        }),
         CredentialsProvider({
             name: "Credentials",
             credentials: {
-                email: { label: "Email", type: "email" },
+                identifier: { label: "Email or Username", type: "text" },
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                if (!credentials?.email || !credentials?.password) {
+                if (!credentials?.identifier || !credentials?.password) {
                     return null
                 }
 
                 try {
-                    const user = await getUserByEmail(credentials.email)
+                    await connectToDatabase()
+                    
+                    // Try to find user by email first, then by username
+                    let user = await User.findOne({
+                        $or: [
+                            { email: credentials.identifier.toLowerCase() },
+                            { username: credentials.identifier }
+                        ]
+                    }).select("+password")
+                    
                     if (!user || !user.password) {
                         return null
                     }
@@ -70,22 +75,6 @@ const handler = NextAuth({
     ],
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
-        async signIn({ user, account }) {
-            try {
-                if (account?.provider === "google" && user.email && user.name) {
-                    await addOrUpdateUser({
-                        name: user.name,
-                        email: user.email,
-                        image: user.image ?? undefined,
-                        roles: [Role.USER],
-                    })
-                }
-                return true
-            } catch (error) {
-                console.error("Sign in error:", error)
-                return false
-            }
-        },
         async jwt({ token, user, trigger }) {
             if (user?.email || trigger === "update") {
                 try {
