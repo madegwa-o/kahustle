@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
         const endDate = new Date();
         endDate.setDate(endDate.getDate() + PLAN_DURATION_DAYS);
 
-        const price = PLAN_PRICING[planType] || 4000;
+        const price = PLAN_PRICING[planType as PlanType] ?? 4000;
 
         const newSubscription = new MembershipPlan({
             userId: user._id,

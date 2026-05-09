@@ -8,8 +8,10 @@ import { Types } from "mongoose";
 // GET: Retrieve specific subscription
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+
+    const {id} = await params;
     try {
         const session = await getServerSession();
 
@@ -31,7 +33,7 @@ export async function GET(
         }
 
         const subscription = await MembershipPlan.findOne({
-            _id: params.id,
+            _id: id,
             userId: user._id,
         });
 
@@ -58,8 +60,10 @@ export async function GET(
 // PATCH: Update subscription
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+
+    const {id} = await params;
     try {
         const session = await getServerSession();
 
@@ -90,7 +94,7 @@ export async function PATCH(
         }
 
         const subscription = await MembershipPlan.findOneAndUpdate(
-            { _id: params.id, userId: user._id },
+            { _id: id, userId: user._id },
             { status },
             { new: true }
         );
@@ -118,8 +122,10 @@ export async function PATCH(
 // DELETE: Cancel subscription
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+
+    const {id} = await params;
     try {
         const session = await getServerSession();
 
@@ -141,7 +147,7 @@ export async function DELETE(
         }
 
         const subscription = await MembershipPlan.findOneAndUpdate(
-            { _id: params.id, userId: user._id },
+            { _id: id, userId: user._id },
             { status: "cancelled" },
             { new: true }
         );

@@ -130,7 +130,7 @@ export async function getUserSubscriptionInfo(
     category: string
 ) {
     try {
-        await connectDB();
+        await connectToDatabase();
 
         const now = new Date();
         const subscription = await MembershipPlan.findOne({
@@ -169,7 +169,7 @@ export async function getUserSubscriptionInfo(
  */
 export async function getUserSubscriptions(userId: Types.ObjectId | string) {
     try {
-        await connectDB();
+        await connectToDatabase();
 
         const now = new Date();
         const subscriptions = await MembershipPlan.find({
