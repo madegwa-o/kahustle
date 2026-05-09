@@ -11,7 +11,6 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import InstallPrompt from "@/components/InstallPrompt";
 import AuthErrorHandlerWrapper from "@/components/auth-error-handler-wrapper";
 import { NotificationDisplay } from "@/components/notifications/notification-display";
-import ChatbotWidget from "@/components/chatbot-widget";
 import ContactNav from "@/components/contact-nav";
 import { Navbar } from "@/components/navbar";
 import Footer from "@/components/footer";
@@ -166,7 +165,6 @@ export default function RootLayout({
                 <AuthErrorHandlerWrapper />
                 <InstallPrompt />
                 <MobileBottomNav />
-                <ChatbotWidget />
             </ThemeProvider>
         </AuthProvider>
 

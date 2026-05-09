@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
+const MAIN_CATEGORIES = ["VEHICLES", "CONSTRUCTION_FREELANCERS", "CAREERS", "PROPERTIES"] as const
+
 type Category = { _id: string; mainCategory: string; subcategories: string[] }
 
 export default function AccountCategoriesTab() {
@@ -15,8 +17,6 @@ export default function AccountCategoriesTab() {
   )
 
   const [categories, setCategories] = useState<Category[]>([])
-  const [mainCategory, setMainCategory] = useState("")
-  const [subcategories, setSubcategories] = useState("")
   const [subcategoryInputs, setSubcategoryInputs] = useState<Record<string, string>>({})
 
   const load = async () => {
@@ -27,25 +27,9 @@ export default function AccountCategoriesTab() {
 
   useEffect(() => {
     if (!canManage) return
-
-    void (async () => {
-      const res = await fetch("/api/categories")
-      const data = await res.json()
-      setCategories(data.categories || [])
-    })()
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load()
   }, [canManage])
-
-  const createCategory = async () => {
-    const subs = subcategories.split(",").map((s) => s.trim()).filter(Boolean)
-    await fetch("/api/categories", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mainCategory, subcategories: subs }),
-    })
-    setMainCategory("")
-    setSubcategories("")
-    await load()
-  }
 
   const saveSubcategories = async (id: string, subs: string[]) => {
     await fetch(`/api/categories/${id}`, {
@@ -65,43 +49,30 @@ export default function AccountCategoriesTab() {
   const renameSubcategory = async (category: Category, currentName: string, nextName: string) => {
     const sanitized = nextName.trim()
     if (!sanitized) return
-
-    const next = category.subcategories.map((item) =>
-      item === currentName ? sanitized : item
-    )
+    const next = category.subcategories.map((item) => (item === currentName ? sanitized : item))
     await saveSubcategories(category._id, Array.from(new Set(next)))
   }
 
   const addSubcategory = async (category: Category) => {
     const newSubcategory = (subcategoryInputs[category._id] || "").trim()
-    if (!newSubcategory) return
-    if (category.subcategories.includes(newSubcategory)) return
-
-    const next = [...category.subcategories, newSubcategory]
-    await saveSubcategories(category._id, next)
+    if (!newSubcategory || category.subcategories.includes(newSubcategory)) return
+    await saveSubcategories(category._id, [...category.subcategories, newSubcategory])
     setSubcategoryInputs((prev) => ({ ...prev, [category._id]: "" }))
-  }
-
-  const deleteCategory = async (id: string) => {
-    await fetch(`/api/categories/${id}`, { method: "DELETE" })
-    await load()
   }
 
   if (!canManage) return <p className="text-sm text-muted-foreground">Only staff can manage categories.</p>
 
-  return <div className="space-y-4">
-    <div className="border rounded p-3 space-y-2">
-      <p className="text-sm font-medium">Add Category</p>
-      <Input placeholder="Main category (e.g. VEHICLES)" value={mainCategory} onChange={(e) => setMainCategory(e.target.value)} />
-      <Input placeholder="Subcategories comma separated" value={subcategories} onChange={(e) => setSubcategories(e.target.value)} />
-      <Button size="sm" onClick={createCategory}>Create Category</Button>
-    </div>
+  const categoriesByMain = MAIN_CATEGORIES.map((mainCategory) =>
+    categories.find((category) => category.mainCategory === mainCategory)
+  ).filter(Boolean) as Category[]
 
-    {categories.map((category) => (
+  return <div className="space-y-4">
+    <p className="text-sm text-muted-foreground">Manage subcategories under the 4 supported platform categories.</p>
+
+    {categoriesByMain.map((category) => (
       <div key={category._id} className="border rounded p-3 flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2">
           <p className="font-medium">{category.mainCategory}</p>
-          <Button size="sm" variant="destructive" onClick={() => deleteCategory(category._id)}>Delete Category</Button>
         </div>
 
         <div className="space-y-2">

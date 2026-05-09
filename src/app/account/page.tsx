@@ -2,19 +2,19 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { User, CreditCard, History, Settings, Bell, Shield, Loader2, Key, Package } from "lucide-react"
+import { User, History, Bell, Shield, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useRouter } from "next/navigation"
 import {usePushNotifications} from "@/hooks/use-push-notifications";
-import ApiKeysManager from "@/components/api-keys-manager";
 import AccountListingsTab from "@/components/account-listings-tab";
 import AccountUsersTab from "@/components/account-users-tab";
 import AccountCategoriesTab from "@/components/account-categories-tab";
@@ -80,6 +80,22 @@ export default function AccountPage() {
     }
 
 
+    const roles = session?.user?.roles || []
+    const canManageUsers = roles.includes("ADMIN")
+    const canManageCategories = roles.includes("ADMIN") || roles.includes("EDITOR")
+
+    const availableTabs = useMemo(() => ([
+        { value: "listings", label: "Listings", show: true },
+        { value: "profile", label: "Profile", show: true },
+        { value: "users", label: "Users", show: canManageUsers },
+        { value: "categories", label: "Categories", show: canManageCategories },
+        { value: "share", label: "Share", show: true },
+        { value: "settings", label: "Settings", show: true },
+    ].filter((tab) => tab.show)), [canManageCategories, canManageUsers])
+
+    const [activeTab, setActiveTab] = useState("listings")
+    const safeActiveTab = availableTabs.find((tab) => tab.value === activeTab)?.value || availableTabs[0]?.value || "listings"
+
     if (status === "loading") {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -91,6 +107,9 @@ export default function AccountPage() {
     if (!session) {
         return null
     }
+
+
+
 
 
     const handleToggle = async (checked: boolean) => {
@@ -116,14 +135,24 @@ export default function AccountPage() {
                 <p className="text-muted-foreground">Manage your profile, API keys, and account settings.</p>
             </div>
 
-            <Tabs defaultValue="listings" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
-                    <TabsTrigger value="listings">Listings</TabsTrigger>
-                    <TabsTrigger value="profile">Profile</TabsTrigger>
-                    <TabsTrigger value="users">Users</TabsTrigger>
-                    <TabsTrigger value="categories">Categories</TabsTrigger>
-                    <TabsTrigger value="share">Share</TabsTrigger>
-                    <TabsTrigger value="settings">Settings</TabsTrigger>
+            <Tabs value={safeActiveTab} onValueChange={setActiveTab} className="space-y-6">
+                <div className="md:hidden">
+                    <Select value={safeActiveTab} onValueChange={setActiveTab}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select section" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {availableTabs.map((tab) => (
+                                <SelectItem key={tab.value} value={tab.value}>{tab.label}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <TabsList className="hidden md:grid w-full grid-cols-4 lg:grid-cols-6">
+                    {availableTabs.map((tab) => (
+                        <TabsTrigger key={tab.value} value={tab.value}>{tab.label}</TabsTrigger>
+                    ))}
                 </TabsList>
 
 
