@@ -14,7 +14,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import useSWR from "swr"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -46,7 +45,16 @@ const dynamicCategories: { label: string; href: string; slug: string }[] = [
     { label: "Properties", href: "/properties", slug: "properties" },
 ]
 
-const navOrder = ["Home", "Vehicles", "Construction Freelancer", "Careers", "Properties", "Pricing", "Contact", "About Us"]
+const navOrder = [
+    "Home",
+    "Vehicles",
+    "Construction Freelancer",
+    "Careers",
+    "Properties",
+    "Pricing",
+    "Contact",
+    "About Us",
+]
 
 // ─── SWR ──────────────────────────────────────────────────────────────────────
 
@@ -107,6 +115,8 @@ export function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
+    const roles: string[] = session?.user?.roles ?? []
+
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -120,8 +130,6 @@ export function Navbar() {
     const handleSignOut = async () => {
         await signOut({ callbackUrl: "/" })
     }
-
-    const roles: string[] = session?.user?.roles ?? []
 
     return (
         <header
@@ -152,10 +160,7 @@ export function Navbar() {
                                         <ChevronDown className="h-3.5 w-3.5" />
                                     </button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    align="start"
-                                    className="w-56 max-h-72 overflow-y-auto"
-                                >
+                                <DropdownMenuContent align="start" className="w-56 max-h-72 overflow-y-auto">
                                     {link.children.map((child) => (
                                         <DropdownMenuItem key={child.href} asChild>
                                             <Link href={child.href} className="cursor-pointer">
@@ -241,7 +246,7 @@ export function Navbar() {
                                         <Link href="/account" className="cursor-pointer">My Account</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
-                                        <Link href="/account" className="cursor-pointer">My Ads</Link>
+                                        <Link href="/account?tab=listings" className="cursor-pointer">My Ads</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
@@ -278,6 +283,8 @@ export function Navbar() {
             {isMenuOpen && (
                 <div className="lg:hidden border-t border-border bg-card">
                     <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
+
+                        {/* Nav Links */}
                         {navLinks.map((link) =>
                             link.children && link.children.length > 0 ? (
                                 <div key={link.href}>
@@ -325,21 +332,24 @@ export function Navbar() {
                         )}
 
                         {/* Mobile CTA + Auth */}
-                        <div className="mt-3 pt-3 border-t border-border flex flex-col gap-2">
+                        <div className="mt-3 pt-3 border-t border-border flex flex-col gap-1">
                             <Button
-                                className="w-full bg-primary hover:opacity-90 text-primary-foreground font-semibold"
+                                className="w-full bg-primary hover:opacity-90 text-primary-foreground font-semibold mb-2"
                                 asChild
                                 onClick={() => setIsMenuOpen(false)}
                             >
-                                <Link href="/post-ad">
+                                <Link href="/account">
                                     <Tag className="mr-2 h-4 w-4" />
                                     Post Your Ad
                                 </Link>
                             </Button>
 
-                            {session?.user ? (
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-3 px-1 py-1">
+                            {status === "loading" ? (
+                                <div className="h-10 w-full rounded-md bg-muted animate-pulse" />
+                            ) : session?.user ? (
+                                <div className="space-y-1">
+                                    {/* User Info */}
+                                    <div className="flex items-center gap-3 px-3 py-2">
                                         <Avatar className="h-9 w-9 shrink-0">
                                             <AvatarImage src={session.user.image || undefined} />
                                             <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
@@ -363,16 +373,33 @@ export function Navbar() {
                                             )}
                                         </div>
                                     </div>
-                                    <Button
-                                        variant="outline"
-                                        className="w-full"
+
+                                    {/* Account Links */}
+                                    <Link
+                                        href="/account"
+                                        className="flex w-full items-center px-3 py-2.5 text-sm font-medium text-foreground rounded-md hover:bg-secondary hover:text-primary transition-colors"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        My Account
+                                    </Link>
+                                    <Link
+                                        href="/account?tab=listings"
+                                        className="flex w-full items-center px-3 py-2.5 text-sm font-medium text-foreground rounded-md hover:bg-secondary hover:text-primary transition-colors"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        My Ads
+                                    </Link>
+
+                                    {/* Sign Out */}
+                                    <button
+                                        className="flex w-full items-center px-3 py-2.5 text-sm font-medium text-red-500 rounded-md hover:bg-red-50 transition-colors"
                                         onClick={() => { void handleSignOut(); setIsMenuOpen(false) }}
                                     >
                                         Sign Out
-                                    </Button>
+                                    </button>
                                 </div>
                             ) : (
-                                <Button variant="outline" className="w-full border-gray-200" asChild onClick={() => setIsMenuOpen(false)}>
+                                <Button variant="outline" className="w-full" asChild onClick={() => setIsMenuOpen(false)}>
                                     <Link href="/signin">
                                         <LogIn className="mr-2 h-4 w-4" />
                                         Login / Register
