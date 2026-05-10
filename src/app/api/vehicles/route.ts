@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
             price,
             images,
             make,
-            model,
+            vehicleModel,
             year,
             mileage,
             fuelType,
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
             !name ||
             !price ||
             !make ||
-            !model ||
+            !vehicleModel ||
             !year ||
             !mileage ||
             !fuelType ||
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
             status: "active",
             views: 0,
             make: make.trim(),
-            model: model.trim(),
+            vehicleModel: vehicleModel.trim(),
             year: parseInt(year),
             mileage: parseFloat(mileage),
             fuelType,

@@ -13,7 +13,7 @@ export interface IVehicle extends Document {
     updatedAt: Date
     // Vehicle-specific fields
     make: string
-    model: string
+    vehicleModel: string
     year: number
     mileage: number
     fuelType: "petrol" | "diesel" | "hybrid" | "electric"
@@ -74,10 +74,12 @@ const VehicleSchema = new Schema<IVehicle>(
             trim: true,
             index: true,
         },
-        model: {
+        vehicleModel: {
             type: String,
             required: [true, "Vehicle model is required"],
             trim: true,
+            maxlength: [50, "Model cannot exceed 50 characters"],
+            index: true,
         },
         year: {
             type: Number,

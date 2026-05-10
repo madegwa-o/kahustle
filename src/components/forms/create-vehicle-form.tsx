@@ -34,7 +34,7 @@ export const CreateVehicleForm = memo(function CreateVehicleForm({
         description: "",
         price: "",
         make: "",
-        model: "",
+        vehicleModel: "",
         year: new Date().getFullYear().toString(),
         mileage: "",
         fuelType: "",
@@ -53,7 +53,7 @@ export const CreateVehicleForm = memo(function CreateVehicleForm({
     }
 
     const handleSubmit = async () => {
-        const requiredFields = ["name", "price", "make", "model", "year", "mileage", "fuelType", "transmission", "bodyType", "color", "condition"]
+        const requiredFields = ["name", "price", "make", "vehicleModel", "year", "mileage", "fuelType", "transmission", "bodyType", "color", "condition"]
         if (requiredFields.some((field) => !formData[field as keyof typeof formData])) {
             return
         }
@@ -72,7 +72,7 @@ export const CreateVehicleForm = memo(function CreateVehicleForm({
             description: "",
             price: "",
             make: "",
-            model: "",
+            vehicleModel: "",
             year: new Date().getFullYear().toString(),
             mileage: "",
             fuelType: "",
@@ -85,7 +85,7 @@ export const CreateVehicleForm = memo(function CreateVehicleForm({
         onOpenChange(false)
     }
 
-    const isFormValid = formData.name && formData.price && formData.make && formData.model && formData.year && formData.mileage && formData.fuelType && formData.transmission && formData.bodyType && formData.color && formData.condition
+    const isFormValid = formData.name && formData.price && formData.make && formData.vehicleModel && formData.year && formData.mileage && formData.fuelType && formData.transmission && formData.bodyType && formData.color && formData.condition
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -130,12 +130,12 @@ export const CreateVehicleForm = memo(function CreateVehicleForm({
                             />
                         </div>
                         <div>
-                            <Label htmlFor="model">Model *</Label>
+                            <Label htmlFor="vehicleModel">Model *</Label>
                             <Input
-                                id="model"
+                                id="vehicleModel"
                                 placeholder="Civic"
-                                value={formData.model}
-                                onChange={(e) => handleInputChange("model", e.target.value)}
+                                value={formData.vehicleModel}
+                                onChange={(e) => handleInputChange("vehicleModel", e.target.value)}
                                 disabled={isLoading}
                             />
                         </div>
