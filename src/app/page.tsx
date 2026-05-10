@@ -30,7 +30,7 @@ export default function Home() {
             <main className="container mx-auto px-4 py-12">
 
                 <a
-                    href="https://chat.whatsapp.com/F2QqO06EOyVDi7W36sQrTn?mode=wwt"
+                    href="https://chat.whatsapp.com/?mode=wwt"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block mb-12 max-w-2xl transition-transform hover:scale-[1.02] hover:shadow-sm rounded-xl p-2"
