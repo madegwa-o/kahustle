@@ -14,6 +14,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import useSWR from "swr"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -29,7 +30,7 @@ interface NavCategory {
     children?: SubCategory[]
 }
 
-// ─── Static nav links (no subcategories needed from DB) ──────────────────────
+// ─── Static nav links ─────────────────────────────────────────────────────────
 
 const staticNavLinks: NavCategory[] = [
     { label: "Home", href: "/" },
@@ -38,7 +39,6 @@ const staticNavLinks: NavCategory[] = [
     { label: "About Us", href: "/about" },
 ]
 
-// Categories that have dynamic subcategories from DB
 const dynamicCategories: { label: string; href: string; slug: string }[] = [
     { label: "Vehicles", href: "/vehicles", slug: "vehicles" },
     { label: "Construction Freelancer", href: "/construction-freelancers", slug: "construction-freelancers" },
@@ -46,26 +46,26 @@ const dynamicCategories: { label: string; href: string; slug: string }[] = [
     { label: "Properties", href: "/properties", slug: "properties" },
 ]
 
-// Desired display order
 const navOrder = ["Home", "Vehicles", "Construction Freelancer", "Careers", "Properties", "Pricing", "Contact", "About Us"]
 
-// ─── SWR fetcher ─────────────────────────────────────────────────────────────
+// ─── SWR ──────────────────────────────────────────────────────────────────────
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
-// ─── Hook: fetch all subcategories grouped by parent slug ────────────────────
-
 function useNavCategories() {
-    const { data, error, isLoading } = useSWR<Record<string, SubCategory[]>>("/api/categories/nav", fetcher, {
-        revalidateOnFocus: false,       // don't refetch when tab regains focus
-        revalidateOnReconnect: false,   // don't refetch on reconnect
-        dedupingInterval: 60 * 60 * 1000, // cache for 1 hour
-    })
-
+    const { data, error, isLoading } = useSWR<Record<string, SubCategory[]>>(
+        "/api/categories/nav",
+        fetcher,
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            dedupingInterval: 60 * 60 * 1000,
+        }
+    )
     return { subcategories: data, error, isLoading }
 }
 
-// ─── Build full nav links merging static + dynamic ───────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function buildNavLinks(subcategories?: Record<string, SubCategory[]>): NavCategory[] {
     const dynamic: NavCategory[] = dynamicCategories.map((cat) => ({
@@ -73,14 +73,11 @@ function buildNavLinks(subcategories?: Record<string, SubCategory[]>): NavCatego
         href: cat.href,
         children: subcategories?.[cat.slug] ?? [],
     }))
-
     const all = [...staticNavLinks, ...dynamic]
     return navOrder
         .map((label) => all.find((l) => l.label === label))
         .filter(Boolean) as NavCategory[]
 }
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function getUserInitials(name: string | null | undefined) {
     if (!name) return "U"
@@ -90,7 +87,16 @@ function getUserInitials(name: string | null | undefined) {
         : name.substring(0, 2).toUpperCase()
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
+function roleBadgeColor(role: string) {
+    switch (role.toUpperCase()) {
+        case "ADMIN":  return "bg-red-100 text-red-700 border-red-200"
+        case "STAFF":  return "bg-blue-100 text-blue-700 border-blue-200"
+        case "EDITOR": return "bg-purple-100 text-purple-700 border-purple-200"
+        default:       return "bg-muted text-muted-foreground"
+    }
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export function Navbar() {
     const { data: session, status } = useSession()
@@ -114,6 +120,8 @@ export function Navbar() {
     const handleSignOut = async () => {
         await signOut({ callbackUrl: "/" })
     }
+
+    const roles: string[] = session?.user?.roles ?? []
 
     return (
         <header
@@ -144,7 +152,10 @@ export function Navbar() {
                                         <ChevronDown className="h-3.5 w-3.5" />
                                     </button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="start" className="w-44">
+                                <DropdownMenuContent
+                                    align="start"
+                                    className="w-56 max-h-72 overflow-y-auto"
+                                >
                                     {link.children.map((child) => (
                                         <DropdownMenuItem key={child.href} asChild>
                                             <Link href={child.href} className="cursor-pointer">
@@ -152,6 +163,16 @@ export function Navbar() {
                                             </Link>
                                         </DropdownMenuItem>
                                     ))}
+                                    {link.children.length > 8 && (
+                                        <>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem asChild>
+                                                <Link href={link.href} className="cursor-pointer font-medium text-primary">
+                                                    View all →
+                                                </Link>
+                                            </DropdownMenuItem>
+                                        </>
+                                    )}
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : (
@@ -179,6 +200,7 @@ export function Navbar() {
                         </Link>
                     </Button>
 
+                    {/* Desktop Auth */}
                     <div className="hidden md:flex items-center">
                         {status === "loading" ? (
                             <div className="h-9 w-9 rounded-full bg-gray-100 animate-pulse" />
@@ -187,17 +209,32 @@ export function Navbar() {
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0">
                                         <Avatar className="h-9 w-9">
-                                            <AvatarImage src={session.user.image || undefined} alt={session.user.name || "User"} />
+                                            <AvatarImage
+                                                src={session.user.image || undefined}
+                                                alt={session.user.name || "User"}
+                                            />
                                             <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
                                                 {getUserInitials(session.user.name)}
                                             </AvatarFallback>
                                         </Avatar>
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuContent align="end" className="w-60">
                                     <DropdownMenuLabel>
                                         <p className="text-sm font-semibold">{session.user.name}</p>
-                                        <p className="text-xs text-muted-foreground">{session.user.email}</p>
+                                        <p className="text-xs text-muted-foreground mb-2">{session.user.email}</p>
+                                        {roles.length > 0 && (
+                                            <div className="flex flex-wrap gap-1 mt-1">
+                                                {roles.map((role) => (
+                                                    <span
+                                                        key={role}
+                                                        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${roleBadgeColor(role)}`}
+                                                    >
+                                                        {role}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>
@@ -225,6 +262,7 @@ export function Navbar() {
                         )}
                     </div>
 
+                    {/* Mobile Menu Toggle */}
                     <Button
                         variant="ghost"
                         size="icon"
@@ -251,7 +289,7 @@ export function Navbar() {
                                         <ChevronDown className={`h-4 w-4 transition-transform ${openDropdown === link.href ? "rotate-180" : ""}`} />
                                     </button>
                                     {openDropdown === link.href && (
-                                        <div className="ml-4 mt-1 flex flex-col gap-1 border-l-2 border-secondary pl-3">
+                                        <div className="ml-4 mt-1 flex flex-col gap-1 border-l-2 border-secondary pl-3 max-h-48 overflow-y-auto">
                                             {link.children.map((child) => (
                                                 <Link
                                                     key={child.href}
@@ -262,6 +300,15 @@ export function Navbar() {
                                                     {child.label}
                                                 </Link>
                                             ))}
+                                            {link.children.length > 6 && (
+                                                <Link
+                                                    href={link.href}
+                                                    className="px-3 py-2 text-sm font-medium text-primary hover:underline"
+                                                    onClick={() => setIsMenuOpen(false)}
+                                                >
+                                                    View all →
+                                                </Link>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -277,6 +324,7 @@ export function Navbar() {
                             )
                         )}
 
+                        {/* Mobile CTA + Auth */}
                         <div className="mt-3 pt-3 border-t border-border flex flex-col gap-2">
                             <Button
                                 className="w-full bg-primary hover:opacity-90 text-primary-foreground font-semibold"
@@ -292,18 +340,34 @@ export function Navbar() {
                             {session?.user ? (
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-3 px-1 py-1">
-                                        <Avatar className="h-9 w-9">
+                                        <Avatar className="h-9 w-9 shrink-0">
                                             <AvatarImage src={session.user.image || undefined} />
                                             <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
                                                 {getUserInitials(session.user.name)}
                                             </AvatarFallback>
                                         </Avatar>
-                                        <div>
-                                            <p className="text-sm font-semibold">{session.user.name}</p>
-                                            <p className="text-xs text-muted-foreground">{session.user.email}</p>
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-semibold truncate">{session.user.name}</p>
+                                            <p className="text-xs text-muted-foreground truncate">{session.user.email}</p>
+                                            {roles.length > 0 && (
+                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                    {roles.map((role) => (
+                                                        <span
+                                                            key={role}
+                                                            className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${roleBadgeColor(role)}`}
+                                                        >
+                                                            {role}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                    <Button variant="outline" className="w-full" onClick={() => { handleSignOut(); setIsMenuOpen(false) }}>
+                                    <Button
+                                        variant="outline"
+                                        className="w-full"
+                                        onClick={() => { void handleSignOut(); setIsMenuOpen(false) }}
+                                    >
                                         Sign Out
                                     </Button>
                                 </div>

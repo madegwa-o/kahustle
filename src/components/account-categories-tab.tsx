@@ -25,10 +25,10 @@ function toSlug(label: string) {
 }
 
 export default function AccountCategoriesTab() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
 
   const canManage = useMemo(
-      () => session?.user?.roles?.includes(Role.STAFF) || session?.user?.roles?.includes(Role.ADMIN),
+      () => session?.user?.roles?.includes(Role.STAFF) ?? false,
       [session?.user?.roles]
   )
 
@@ -36,44 +36,66 @@ export default function AccountCategoriesTab() {
   const [loading, setLoading] = useState(true)
   const [inputs, setInputs] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState<Record<string, boolean>>({})
+  const [error, setError] = useState<string | null>(null)
 
   const load = async () => {
     setLoading(true)
-    const res = await fetch("/api/categories")
-    const data = await res.json()
-    setCategories(data.categories || [])
-    setLoading(false)
+    setError(null)
+    try {
+      const res = await fetch("/api/categories")
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      setCategories(data.categories || [])
+    } catch (err) {
+      console.error("Failed to load categories:", err)
+      setError("Failed to load categories. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
-    if (!canManage) return
+    if (status === "loading") return
+    if (!canManage) {
+      setLoading(false)
+      return
+    }
     void load()
-  }, [canManage])
+  }, [canManage, status])
 
   const saveSubcategories = async (id: string, subs: Subcategory[]) => {
     setSaving((prev) => ({ ...prev, [id]: true }))
-    await fetch(`/api/categories/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subcategories: subs }),
-    })
-    await load()
-    setSaving((prev) => ({ ...prev, [id]: false }))
+    try {
+      const res = await fetch(`/api/categories/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subcategories: subs }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      await load()
+    } catch (err) {
+      console.error("Failed to save subcategories:", err)
+      setError("Failed to save changes. Please try again.")
+    } finally {
+      setSaving((prev) => ({ ...prev, [id]: false }))
+    }
   }
 
   const addSubcategory = async (category: Category) => {
     const label = (inputs[category._id] || "").trim()
     if (!label) return
     const slug = toSlug(label)
-    const alreadyExists = category.subcategories.some((s) => s.slug === slug)
-    if (alreadyExists) return
+    if (category.subcategories.some((s) => s.slug === slug)) return
     await saveSubcategories(category._id, [...category.subcategories, { label, slug }])
     setInputs((prev) => ({ ...prev, [category._id]: "" }))
   }
 
   const removeSubcategory = async (category: Category, slug: string) => {
     if (category.subcategories.length <= 1) return
-    await saveSubcategories(category._id, category.subcategories.filter((s) => s.slug !== slug))
+    await saveSubcategories(
+        category._id,
+        category.subcategories.filter((s) => s.slug !== slug)
+    )
   }
 
   const renameSubcategory = async (category: Category, slug: string, newLabel: string) => {
@@ -85,14 +107,26 @@ export default function AccountCategoriesTab() {
     await saveSubcategories(category._id, updated)
   }
 
+  // Show spinner while session or data is loading
+  if (status === "loading" || loading) {
+    return (
+        <div className="flex items-center gap-2 text-muted-foreground text-sm">
+          <Loader2 className="h-4 w-4 animate-spin" /> Loading categories...
+        </div>
+    )
+  }
+
   if (!canManage) {
     return <p className="text-sm text-muted-foreground">Only staff can manage categories.</p>
   }
 
-  if (loading) {
+  if (error) {
     return (
-        <div className="flex items-center gap-2 text-muted-foreground text-sm">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading categories...
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-destructive">{error}</p>
+          <Button size="sm" variant="outline" onClick={load} className="w-fit">
+            Retry
+          </Button>
         </div>
     )
   }
@@ -109,7 +143,9 @@ export default function AccountCategoriesTab() {
 
         {categoriesByMain.map((category) => (
             <div key={category._id} className="border rounded p-3 flex flex-col gap-3">
-              <p className="font-medium capitalize">{category.mainCategory.replace(/-/g, " ")}</p>
+              <p className="font-medium capitalize">
+                {category.mainCategory.replace(/-/g, " ")}
+              </p>
 
               <div className="space-y-2">
                 {category.subcategories.map((sub) => (
@@ -136,15 +172,22 @@ export default function AccountCategoriesTab() {
                   <Input
                       placeholder="Add a new subcategory"
                       value={inputs[category._id] || ""}
-                      onChange={(e) => setInputs((prev) => ({ ...prev, [category._id]: e.target.value }))}
-                      onKeyDown={(e) => { if (e.key === "Enter") void addSubcategory(category) }}
+                      onChange={(e) =>
+                          setInputs((prev) => ({ ...prev, [category._id]: e.target.value }))
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") void addSubcategory(category)
+                      }}
                   />
                   <Button
                       size="sm"
-                      disabled={saving[category._id]}
+                      disabled={saving[category._id] || !inputs[category._id]?.trim()}
                       onClick={() => addSubcategory(category)}
                   >
-                    {saving[category._id] ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add"}
+                    {saving[category._id]
+                        ? <Loader2 className="h-4 w-4 animate-spin" />
+                        : "Add"
+                    }
                   </Button>
                 </div>
               </div>
