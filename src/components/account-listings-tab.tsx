@@ -119,17 +119,39 @@ export default function AccountListingsTab() {
 
         const load = async () => {
             try {
-                const [catRes, prodRes] = await Promise.all([
+                const [catRes, vehiclesRes, propertiesRes, jobsRes, constructionRes, productsRes] = await Promise.all([
                     fetch("/api/categories"),
+                    fetch(canManageAll ? "/api/vehicles" : `/api/vehicles?userId=${session.user.id}`),
+                    fetch(canManageAll ? "/api/properties" : `/api/properties?userId=${session.user.id}`),
+                    fetch(canManageAll ? "/api/jobs" : `/api/jobs?userId=${session.user.id}`),
+                    fetch(canManageAll ? "/api/construction-services" : `/api/construction-services?userId=${session.user.id}`),
                     fetch(canManageAll ? "/api/products" : `/api/products?userId=${session.user.id}`),
                 ])
+                
                 const catData = await catRes.json()
-                const prodData = await prodRes.json()
+                const vehiclesData = await vehiclesRes.json()
+                const propertiesData = await propertiesRes.json()
+                const jobsData = await jobsRes.json()
+                const constructionData = await constructionRes.json()
+                const productsData = await productsRes.json()
 
                 if (catData.categories) setCategories(catData.categories)
-                if (prodData.success) setProducts(prodData.products)
-                else setError("Failed to load your listings")
-            } catch {
+                
+                // Aggregate all products from different endpoints
+                const allProducts: Product[] = [
+                    ...(productsData.products || []),
+                    ...(vehiclesData.vehicles || []),
+                    ...(propertiesData.properties || []),
+                    ...(jobsData.jobs || []),
+                    ...(constructionData.services || []),
+                ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                
+                setProducts(allProducts)
+                if (allProducts.length === 0 && !productsData.success && !vehiclesData.vehicles && !propertiesData.properties && !jobsData.jobs && !constructionData.services) {
+                    setError("Failed to load your listings")
+                }
+            } catch (err) {
+                console.error("[v0] Error loading listings:", err)
                 setError("Failed to load your listings")
             } finally {
                 setIsLoading(false)
@@ -190,10 +212,10 @@ export default function AccountListingsTab() {
         }
     }
 
-    // ── Submission ──────────────────────────────────────────────────────────
+    // ── Submission ───���──────────────────────────────────────────────────────
 
     const handleFormSubmit = async (data: any) => {
-        if (!selectedCategory) return
+        if (!selectedCategory || !session?.user) return
         setIsCreating(true)
         setError(null)
         try {
@@ -211,7 +233,39 @@ export default function AccountListingsTab() {
                 return
             }
             setSuccess(SUCCESS_MSG[selectedCategory.mainCategory])
+            
+            // Reload all listings after successful creation
             setTimeout(() => {
+                const load = async () => {
+                    try {
+                        const [vehiclesRes, propertiesRes, jobsRes, constructionRes, productsRes] = await Promise.all([
+                            fetch(canManageAll ? "/api/vehicles" : `/api/vehicles?userId=${session.user.id}`),
+                            fetch(canManageAll ? "/api/properties" : `/api/properties?userId=${session.user.id}`),
+                            fetch(canManageAll ? "/api/jobs" : `/api/jobs?userId=${session.user.id}`),
+                            fetch(canManageAll ? "/api/construction-services" : `/api/construction-services?userId=${session.user.id}`),
+                            fetch(canManageAll ? "/api/products" : `/api/products?userId=${session.user.id}`),
+                        ])
+                        
+                        const vehiclesData = await vehiclesRes.json()
+                        const propertiesData = await propertiesRes.json()
+                        const jobsData = await jobsRes.json()
+                        const constructionData = await constructionRes.json()
+                        const productsData = await productsRes.json()
+                        
+                        const allProducts: Product[] = [
+                            ...(productsData.products || []),
+                            ...(vehiclesData.vehicles || []),
+                            ...(propertiesData.properties || []),
+                            ...(jobsData.jobs || []),
+                            ...(constructionData.services || []),
+                        ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                        
+                        setProducts(allProducts)
+                    } catch (err) {
+                        console.error("[v0] Error reloading listings:", err)
+                    }
+                }
+                load()
                 handleCloseDialog()
                 setSuccess(null)
             }, 1500)
@@ -227,9 +281,33 @@ export default function AccountListingsTab() {
     const handleDelete = async (id: string) => {
         if (!window.confirm("Delete this listing?")) return
         try {
-            const res = await fetch(`/api/products/${id}`, { method: "DELETE" })
-            const data = await res.json()
-            if (!res.ok) { setError(data.error || "Delete failed"); return }
+            // Try deleting from all possible endpoints since we don't know which type it is
+            const endpoints = [
+                `/api/products/${id}`,
+                `/api/vehicles/${id}`,
+                `/api/properties/${id}`,
+                `/api/jobs/${id}`,
+                `/api/construction-services/${id}`,
+            ]
+            
+            let deleted = false
+            for (const endpoint of endpoints) {
+                try {
+                    const res = await fetch(endpoint, { method: "DELETE" })
+                    if (res.ok) {
+                        deleted = true
+                        break
+                    }
+                } catch {
+                    // Continue to next endpoint
+                }
+            }
+            
+            if (!deleted) {
+                setError("Delete failed")
+                return
+            }
+            
             setProducts(prev => prev.filter(p => p._id !== id))
             setSuccess("Listing deleted")
             setTimeout(() => setSuccess(null), 2000)
@@ -314,7 +392,9 @@ export default function AccountListingsTab() {
 
                                     <div className="flex-1 min-w-0">
                                         <p className="font-medium text-sm truncate">{product.name}</p>
-                                        <p className="text-xs text-muted-foreground mt-0.5">{product.category}</p>
+                                        <p className="text-xs text-muted-foreground mt-0.5">
+                                            {product.serviceType ? `${product.serviceType}` : product.category || "Listing"}
+                                        </p>
                                         <div className="flex items-center gap-3 mt-1.5">
                                             <span className="text-sm font-semibold text-primary">
                                                 KES {product.price.toLocaleString()}
