@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next"
 import { connectToDatabase } from "@/lib/db"
 import { Property } from "@/models/Property"
 import { User } from "@/models/User"
+import { MainCategory } from "@/lib/categories"
+import { canCreateListing } from "@/lib/permissions"
 import { Types } from "mongoose"
 
 export async function GET(request: NextRequest) {
@@ -131,6 +133,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 { success: false, error: "User not found" },
                 { status: 404 }
+            )
+        }
+
+        if (!canCreateListing(user, MainCategory.PROPERTIES)) {
+            return NextResponse.json(
+                { success: false, error: "Forbidden" },
+                { status: 403 }
             )
         }
 

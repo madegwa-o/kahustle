@@ -1,4 +1,5 @@
 import SpecializedProductDetailPage from "@/components/specialized-product-detail-page"
+import { MainCategory } from "@/lib/categories"
 import { ConstructionService } from "@/models/ConstructionService"
 
 const asText = (value: unknown) => (typeof value === "string" && value.trim().length > 0 ? value : "N/A")
@@ -15,6 +16,8 @@ export default async function ConstructionListingPage({ params }: { params: Prom
         listingLabel: "Construction Freelancer",
         model: ConstructionService,
         callbackPrefix: "/construction-freelancers/listing",
+        categoryKey: MainCategory.CONSTRUCTION_FREELANCERS,
+        requiredViewRoleLabel: "CONSTRUCTION_FREELANCER_SEEKER",
         details: (item) => [
           { label: "Specialty", value: asText(item.category) },
           { label: "Experience", value: `${asNumber(item.yearsOfExperience) ?? 0} years` },

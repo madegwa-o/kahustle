@@ -1,4 +1,5 @@
 import SpecializedProductDetailPage from "@/components/specialized-product-detail-page"
+import { MainCategory } from "@/lib/categories"
 import { Vehicle } from "@/models/Vehicle"
 
 const asText = (value: unknown) => (typeof value === "string" && value.trim().length > 0 ? value : "N/A")
@@ -15,6 +16,8 @@ export default async function VehicleListingPage({ params }: { params: Promise<{
         listingLabel: "Vehicle",
         model: Vehicle,
         callbackPrefix: "/vehicles/listing",
+        categoryKey: MainCategory.VEHICLES,
+        requiredViewRoleLabel: "CARBUYER",
         details: (item) => [
           { label: "Make", value: asText(item.make) },
           { label: "Model", value: asText(item.vehicleModel) },

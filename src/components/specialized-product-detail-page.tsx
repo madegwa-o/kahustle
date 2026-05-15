@@ -1,9 +1,11 @@
-import { notFound, redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 import { getServerSession } from "next-auth"
 import Image from "next/image"
-import { Eye, Clock, Mail, MapPin, Phone, User } from "lucide-react"
+import { Eye, Clock, Mail, MapPin, Phone, User, Lock } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { MainCategory } from "@/lib/categories"
+import { canViewListingDetails } from "@/lib/permissions"
 import { connectToDatabase } from "@/lib/db"
 import { Model, Types } from "mongoose"
 
@@ -12,6 +14,8 @@ interface DetailConfig {
   listingLabel: string
   model: Model<unknown>
   callbackPrefix: string
+  categoryKey: MainCategory
+  requiredViewRoleLabel: string
   details: (item: Record<string, unknown>) => Array<{ label: string; value: string }>
 }
 
@@ -38,8 +42,25 @@ export default async function SpecializedProductDetailPage({
   }
 
   const session = await getServerSession()
-  if (!session?.user?.email) {
-    redirect(`/signin?callbackUrl=${config.callbackPrefix}/${id}`)
+  const canView = canViewListingDetails(session?.user, config.categoryKey)
+
+  if (!session?.user?.email || !canView) {
+    return (
+      <main className="container mx-auto max-w-3xl px-4 py-16">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Lock className="h-5 w-5" />Role-gated listing access</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p>This listing requires a {config.requiredViewRoleLabel} role to access full details.</p>
+            <div className="flex gap-3">
+              <Button asChild><a href="/account">Add {config.requiredViewRoleLabel} Role</a></Button>
+              <Button variant="outline" asChild><a href="/account">Go to Account Roles</a></Button>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    )
   }
 
   await connectToDatabase()

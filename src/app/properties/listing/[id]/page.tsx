@@ -1,4 +1,5 @@
 import SpecializedProductDetailPage from "@/components/specialized-product-detail-page"
+import { MainCategory } from "@/lib/categories"
 import { Property } from "@/models/Property"
 
 const asText = (value: unknown) => (typeof value === "string" && value.trim().length > 0 ? value : "N/A")
@@ -15,6 +16,8 @@ export default async function PropertyListingPage({ params }: { params: Promise<
         listingLabel: "Property",
         model: Property,
         callbackPrefix: "/properties/listing",
+        categoryKey: MainCategory.PROPERTIES,
+        requiredViewRoleLabel: "PROPERTY_BUYER",
         details: (item) => [
           { label: "Type", value: asText(item.propertyType) },
           { label: "Bedrooms", value: asNumber(item.bedrooms)?.toString() ?? "N/A" },

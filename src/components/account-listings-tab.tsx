@@ -10,7 +10,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import Image from "next/image"
 import Link from "next/link"
 import type { IProduct } from "@/models/Product"
-import { MainCategory } from "@/lib/categories"
+import { MainCategory, CATEGORY_REGISTRY } from "@/lib/categories"
+import { canCreateListing, hasAnyRole } from "@/lib/permissions"
 import { Role } from "@/lib/roles"
 import { CreateVehicleForm } from "@/components/forms/create-vehicle-form"
 import { CreatePropertyForm } from "@/components/forms/create-property-form"
@@ -71,12 +72,6 @@ const CATEGORY_META: Record<MainCategory, {
     },
 }
 
-const API_MAP: Record<MainCategory, string> = {
-    [MainCategory.VEHICLES]: "/api/vehicles",
-    [MainCategory.PROPERTIES]: "/api/properties",
-    [MainCategory.CAREERS]: "/api/jobs",
-    [MainCategory.CONSTRUCTION_FREELANCERS]: "/api/construction-services",
-}
 
 const SUCCESS_MSG: Record<MainCategory, string> = {
     [MainCategory.VEHICLES]: "Vehicle listing created!",
@@ -108,9 +103,7 @@ export default function AccountListingsTab() {
     const [selectedSubcategory, setSelectedSubcategory] = useState<ISubcategory | null>(null)
     const [isCreating, setIsCreating] = useState(false)
 
-    const canManageAll =
-        session?.user?.roles?.includes(Role.STAFF) ||
-        session?.user?.roles?.includes(Role.ADMIN)
+    const canManageAll = hasAnyRole(session?.user, [Role.STAFF, Role.ADMIN])
 
     // ── Fetch on mount ──────────────────────────────────────────────────────
 
@@ -182,6 +175,7 @@ export default function AccountListingsTab() {
     }
 
     const handleSelectCategory = (cat: ICategory) => {
+        if (!canCreateListing(session?.user, cat.mainCategory)) return
         setSelectedCategory(cat)
         if (cat.subcategories.length === 1) {
             setSelectedSubcategory(cat.subcategories[0])
@@ -219,7 +213,7 @@ export default function AccountListingsTab() {
         setIsCreating(true)
         setError(null)
         try {
-            const res = await fetch(API_MAP[selectedCategory.mainCategory], {
+            const res = await fetch(CATEGORY_REGISTRY[selectedCategory.mainCategory].createRoute, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -484,17 +478,21 @@ export default function AccountListingsTab() {
                             {categories.map((cat) => {
                                 const meta = CATEGORY_META[cat.mainCategory]
                                 if (!meta) return null
+                                const canCreate = canCreateListing(session?.user, cat.mainCategory)
+                                const requiredRole = CATEGORY_REGISTRY[cat.mainCategory].createRoles.join(" or ")
                                 return (
                                     <button
                                         key={cat._id}
                                         onClick={() => handleSelectCategory(cat)}
-                                        className={`flex flex-col items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${meta.colorClasses}`}
+                                        disabled={!canCreate}
+                                        className={`flex flex-col items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${meta.colorClasses} ${canCreate ? "" : "opacity-60 cursor-not-allowed"}`}
                                     >
                                         <span className="p-2 bg-white/60 rounded-lg">{meta.icon}</span>
                                         <div>
                                             <p className="font-semibold text-sm">{meta.label}</p>
                                             <p className="text-xs opacity-70 mt-0.5 leading-tight">{meta.description}</p>
                                         </div>
+                                        <p className="text-xs opacity-80">{canCreate ? "Eligible" : `Requires ${requiredRole}`}</p>
                                         <ChevronRight className="h-4 w-4 self-end opacity-40 mt-auto" />
                                     </button>
                                 )

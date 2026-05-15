@@ -1,4 +1,5 @@
 import SpecializedProductDetailPage from "@/components/specialized-product-detail-page"
+import { MainCategory } from "@/lib/categories"
 import { Job } from "@/models/Job"
 
 const asText = (value: unknown) => (typeof value === "string" && value.trim().length > 0 ? value : "N/A")
@@ -15,6 +16,8 @@ export default async function CareerListingPage({ params }: { params: Promise<{ 
         listingLabel: "Career",
         model: Job,
         callbackPrefix: "/careers/listing",
+        categoryKey: MainCategory.CAREERS,
+        requiredViewRoleLabel: "JOBSEEKER",
         details: (item) => [
           { label: "Company", value: asText(item.company) },
           { label: "Job Title", value: asText(item.jobTitle) },
