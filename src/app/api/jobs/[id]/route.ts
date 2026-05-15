@@ -1,73 +1,59 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth/next"
+import { getServerSession } from "next-auth"
+import { Types } from "mongoose"
 import { connectToDatabase } from "@/lib/db"
 import { Job } from "@/models/Job"
-import { Types } from "mongoose"
-import { Role } from "@/lib/roles"
+import { User } from "@/models/User"
+import { normalizeJobDetail } from "@/lib/careers/normalize-job"
+import { canDeleteCareer, canEditCareer, canViewCareerDetails } from "@/lib/careers/career-permissions"
 
-export async function DELETE(
-    request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
-) {
-    try {
-        const session = await getServerSession()
+export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  if (!Types.ObjectId.isValid(id)) return NextResponse.json({ error: "Invalid id" }, { status: 400 })
 
-        if (!session?.user?.email) {
-            return NextResponse.json(
-                { success: false, error: "Unauthorized" },
-                { status: 401 }
-            )
-        }
+  await connectToDatabase()
+  const session = await getServerSession()
+  const canView = canViewCareerDetails(session?.user)
 
-        await connectToDatabase()
-        const { id } = await params
+  const job = await Job.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true })
+    .populate("userId", "name email phone image")
+    .lean()
 
-        if (!Types.ObjectId.isValid(id)) {
-            return NextResponse.json(
-                { success: false, error: "Invalid job ID" },
-                { status: 400 }
-            )
-        }
+  if (!job || Array.isArray(job) || job.status !== "active") return NextResponse.json({ error: "Not found" }, { status: 404 })
+  return NextResponse.json({ item: normalizeJobDetail(job, canView) })
+}
 
-        const job = await Job.findById(id)
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getServerSession()
+  if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const { id } = await params
+  if (!Types.ObjectId.isValid(id)) return NextResponse.json({ error: "Invalid id" }, { status: 400 })
 
-        if (!job) {
-            return NextResponse.json(
-                { success: false, error: "Job not found" },
-                { status: 404 }
-            )
-        }
+  await connectToDatabase()
+  const [user, job] = await Promise.all([
+    User.findOne({ email: session.user.email }),
+    Job.findById(id),
+  ])
+  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 })
+  if (!job) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-        // Verify ownership
-        const { User } = await import("@/models")
-        const user = await User.findOne({ email: session.user.email })
-        if (!user) {
-            return NextResponse.json(
-                { success: false, error: "User not found" },
-                { status: 404 }
-            )
-        }
+  if (!canDeleteCareer(user, { userId: String(job.userId) })) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  await Job.findByIdAndDelete(id)
+  return NextResponse.json({ success: true })
+}
 
-        const canManageAny = user?.hasRole?.(Role.STAFF) || user?.hasRole?.(Role.ADMIN)
-        const isOwner = job.userId.toString() === user?._id?.toString()
-        if (!canManageAny && !isOwner) {
-            return NextResponse.json(
-                { success: false, error: "Unauthorized" },
-                { status: 403 }
-            )
-        }
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getServerSession()
+  if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const { id } = await params
+  if (!Types.ObjectId.isValid(id)) return NextResponse.json({ error: "Invalid id" }, { status: 400 })
+  await connectToDatabase()
+  const user = await User.findOne({ email: session.user.email })
+  const job = await Job.findById(id)
+  if (!user || !job) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  if (!canEditCareer(user, { userId: String(job.userId) })) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
-        await Job.findByIdAndDelete(id)
-
-        return NextResponse.json(
-            { success: true, message: "Job deleted" },
-            { status: 200 }
-        )
-    } catch (error) {
-        console.error("DELETE /api/jobs/[id] error:", error)
-        return NextResponse.json(
-            { success: false, error: "Failed to delete job" },
-            { status: 500 }
-        )
-    }
+  const body = await request.json()
+  const updated = await Job.findByIdAndUpdate(id, body, { new: true }).lean()
+  return NextResponse.json({ item: normalizeJobDetail(updated, true) })
 }

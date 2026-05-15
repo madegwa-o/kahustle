@@ -1,0 +1,1 @@
+export default function CareerCompany({ item }: { item: any }) { return <div><h2 className="font-semibold">Company</h2><p>{item.company}</p>{item.recruiter?.email ? <p>{item.recruiter.email}</p> : null}</div> }

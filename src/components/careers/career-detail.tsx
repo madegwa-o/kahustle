@@ -1,0 +1,1 @@
+export default function CareerDetail({ item }: { item: any }) { return <div className="space-y-3"><h1 className="text-3xl font-bold">{item.jobTitle}</h1><p>{item.company} • {item.location}</p><p>{item.description}</p></div> }
