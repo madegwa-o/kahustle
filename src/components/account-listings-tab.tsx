@@ -16,6 +16,7 @@ import { CreateVehicleForm } from "@/components/forms/create-vehicle-form"
 import { CreatePropertyForm } from "@/components/forms/create-property-form"
 import { CreateJobForm } from "@/components/forms/create-job-form"
 import { CreateConstructionServiceForm } from "@/components/forms/create-construction-service-form"
+import { getProductDetailLink } from "@/lib/product-links"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -415,7 +416,7 @@ export default function AccountListingsTab() {
                                             {product.status}
                                         </span>
                                         <Button variant="ghost" size="sm" asChild className="text-xs">
-                                            <Link href={`/product/${product._id}`}>View</Link>
+                                            <Link href={getProductDetailLink(product.category, product._id)}>View</Link>
                                         </Button>
                                         <Button
                                             variant="ghost"

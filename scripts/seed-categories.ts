@@ -49,7 +49,7 @@ const seed = [
             { label: "Machine Operator", slug: "machine-operator" },
             { label: "Heavy Equipment Operator", slug: "heavy-equipment-operator" },
             { label: "Welding & Fabrication Specialist", slug: "welding-fabrication-specialist" },
-            { label: "Roadworks Contractor", slug: "roadworks-contractor" },
+            // { label: "Roadworks Contractor", slug: "roadworks-contractor" },
         ],
     },
     {

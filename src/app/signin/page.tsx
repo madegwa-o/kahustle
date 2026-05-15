@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { signIn, useSession } from "next-auth/react"
+import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -122,6 +123,11 @@ export default function SignInPage() {
                                 required
                                 disabled={isLoading}
                             />
+                        </div>
+                        <div className="flex justify-end">
+                            <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                                Forgot password?
+                            </Link>
                         </div>
                         <Button type="submit" disabled={isLoading} className="w-full">
                             {isLoading ? (

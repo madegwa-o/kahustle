@@ -11,13 +11,18 @@ const PUBLIC_ROUTES = [
     "/signin",
     "/pricing",
     "/about",
+    "/forgot-password",
+    "/reset-password",
     "/api/feeds",
     "/api/products",
+    "/api/auth/forgot-password",
+    "/api/auth/reset-password",
 ]
 
 // Define public route prefixes for dynamic pages
 const PUBLIC_ROUTE_PREFIXES = [
     "/product/",
+    "/auth/",
     "/vehicles",
     "/properties",
     "/careers",
