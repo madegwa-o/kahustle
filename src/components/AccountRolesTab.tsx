@@ -82,16 +82,20 @@ export default function AccountRolesTab() {
 
         try {
             const response = await fetch("/api/user/roles", {
-                method: "PATCH",
+                method: hasRole ? "DELETE" : "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ roles: nextRoles }),
+                body: JSON.stringify({ role: roleValue }),
             })
 
             if (response.ok) {
-                setActiveRoles(nextRoles)
-                await update({ roles: nextRoles })
+                const data = await response.json()
+                const updatedRoles = Array.isArray(data?.roles) ? data.roles : nextRoles
+                setActiveRoles(updatedRoles)
+                await update({ roles: updatedRoles })
                 setSavedRecently(roleValue)
                 setTimeout(() => setSavedRecently(null), 2000)
+            } else {
+                console.error("Failed to update role:", await response.text())
             }
         } catch (err) {
             console.error("Failed to update role:", err)

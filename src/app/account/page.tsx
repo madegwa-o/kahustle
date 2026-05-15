@@ -96,7 +96,7 @@ export default function AccountPage() {
         { value: "settings", label: "Settings", show: true },
     ].filter((tab) => tab.show)), [canManageCategories, canManageUsers])
 
-    const [activeTab, setActiveTab] = useState("listings")
+    const [activeTab, setActiveTab] = useState("roles")
     const safeActiveTab = availableTabs.find((tab) => tab.value === activeTab)?.value || availableTabs[0]?.value || "listings"
 
     if (status === "loading") {
@@ -135,7 +135,7 @@ export default function AccountPage() {
         <main className="container px-4 py-8 max-w-5xl mx-auto">
             <div className="mb-8">
                 <h1 className="font-bold text-3xl mb-2">My Account</h1>
-                <p className="text-muted-foreground">Manage your profile, API keys, and account settings.</p>
+                <p className="text-muted-foreground">Manage your profile, and account settings.</p>
             </div>
 
             <Tabs value={safeActiveTab} onValueChange={setActiveTab} className="space-y-6">
