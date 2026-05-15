@@ -45,6 +45,8 @@ export interface IUser extends Document {
 	agreedToPrivacy?: boolean;
 	createdAt: Date;
 	updatedAt: Date;
+	passwordResetTokenHash?: string;
+	passwordResetExpiresAt?: Date;
 
 	comparePassword(candidate: string): Promise<boolean>;
 	hasRole(role: Role): boolean;
@@ -137,6 +139,16 @@ const UserSchema = new Schema<IUser>(
 		agreedToPrivacy: {
 			type: Boolean,
 			default: false,
+		},
+		passwordResetTokenHash: {
+			type: String,
+			select: false,
+			default: null,
+		},
+		passwordResetExpiresAt: {
+			type: Date,
+			select: false,
+			default: null,
 		},
 	},
 	{

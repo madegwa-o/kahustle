@@ -19,6 +19,7 @@ import AccountListingsTab from "@/components/account-listings-tab";
 import AccountUsersTab from "@/components/account-users-tab";
 import AccountCategoriesTab from "@/components/account-categories-tab";
 import { Role } from "@/lib/roles";
+import AccountRolesTab from "@/components/AccountRolesTab"
 
 export default function AccountPage() {
     const { data: session, status } = useSession()
@@ -87,11 +88,11 @@ export default function AccountPage() {
     const canManageCategories = roles.includes(Role.ADMIN) || roles.includes(Role.STAFF)
 
     const availableTabs = useMemo(() => ([
+        { value: "roles", label: "Roles", show: true },
         { value: "listings", label: "Listings", show: true },
         { value: "profile", label: "Profile", show: true },
         { value: "users", label: "Users", show: canManageUsers },
         { value: "categories", label: "Categories", show: canManageCategories },
-        { value: "share", label: "Share", show: true },
         { value: "settings", label: "Settings", show: true },
     ].filter((tab) => tab.show)), [canManageCategories, canManageUsers])
 
@@ -157,6 +158,9 @@ export default function AccountPage() {
                     ))}
                 </TabsList>
 
+                <TabsContent value="roles" className="space-y-6">
+                    <AccountRolesTab />
+                </TabsContent>
 
                 <TabsContent value="listings" className="space-y-6">
                     <AccountListingsTab />
@@ -259,32 +263,7 @@ export default function AccountPage() {
                 </TabsContent>
 
 
-                <TabsContent value="share" className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <History className="h-5 w-5" />
-                                Love this app?
-                            </CardTitle>
-                            <CardDescription>Share it with your friends</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {/* Uncomment when ShareComponent is ready */}
-                            {/*<ShareComponent*/}
-                            {/*    url="https://malipo.app"*/}
-                            {/*    title="Join Malipo - Smart Payments 🚀"*/}
-                            {/*    description="Experience the future of payments with Malipo"*/}
-                            {/*    hashtag="#MalipoApp"*/}
-                            {/*    platforms={['facebook', 'twitter', 'linkedin', 'whatsapp', 'native']}*/}
-                            {/*    size={50}*/}
-                            {/*/>*/}
 
-                            <Button variant="outline" className="w-full mt-4 bg-transparent">
-                                Coming Soon
-                            </Button>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
 
                 <TabsContent value="settings" className="space-y-6">
                     <Card>
