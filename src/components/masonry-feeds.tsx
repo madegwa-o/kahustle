@@ -6,6 +6,7 @@ import Image from "next/image"
 import useSWR from "swr"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import type { SearchFilters } from "@/components/search-filters"
+import {cloudinaryLoader} from "@/lib/cloudinary-loader";
 
 interface PopulatedProduct {
     _id: string
@@ -177,6 +178,7 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
                                             >
                                                 <div className="relative w-full" style={{ height: `${height}px` }}>
                                                     <Image
+                                                        loader={cloudinaryLoader}
                                                         src={imageUrl}
                                                         alt={`${product.name} - Image ${idx + 1}`}
                                                         fill
