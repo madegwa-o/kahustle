@@ -33,6 +33,7 @@ interface NavCategory {
 
 const staticNavLinks: NavCategory[] = [
     { label: "Home", href: "/" },
+    { label: "Careers", href: "/careers" },
     { label: "Pricing", href: "/pricing" },
     { label: "Contact", href: "/contact" },
     { label: "About Us", href: "/about" },
@@ -41,7 +42,7 @@ const staticNavLinks: NavCategory[] = [
 const dynamicCategories: { label: string; href: string; slug: string }[] = [
     { label: "Vehicles", href: "/vehicles", slug: "vehicles" },
     { label: "Construction Freelancer", href: "/construction-freelancers", slug: "construction-freelancers" },
-    { label: "Careers", href: "/careers", slug: "careers" },
+
     { label: "Properties", href: "/properties", slug: "properties" },
 ]
 

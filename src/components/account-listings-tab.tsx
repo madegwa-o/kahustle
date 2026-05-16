@@ -82,6 +82,14 @@ const SUCCESS_MSG: Record<MainCategory, string> = {
 
 const STEPS: DialogStep[] = ["category", "subcategory", "form"]
 
+const FALLBACK_CATEGORIES: ICategory[] = [
+    { _id: MainCategory.CAREERS, mainCategory: MainCategory.CAREERS, subcategories: [{ label: "General", slug: "general" }] },
+    { _id: MainCategory.VEHICLES, mainCategory: MainCategory.VEHICLES, subcategories: [{ label: "General", slug: "general" }] },
+    { _id: MainCategory.PROPERTIES, mainCategory: MainCategory.PROPERTIES, subcategories: [{ label: "General", slug: "general" }] },
+    { _id: MainCategory.CONSTRUCTION_FREELANCERS, mainCategory: MainCategory.CONSTRUCTION_FREELANCERS, subcategories: [{ label: "General", slug: "general" }] },
+]
+
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AccountListingsTab() {
@@ -104,6 +112,7 @@ export default function AccountListingsTab() {
     const [isCreating, setIsCreating] = useState(false)
 
     const canManageAll = hasAnyRole(session?.user, [Role.STAFF, Role.ADMIN])
+    const categoryOptions = categories.length ? categories : FALLBACK_CATEGORIES
 
     // ── Fetch on mount ──────────────────────────────────────────────────────
 
@@ -475,7 +484,7 @@ export default function AccountListingsTab() {
                     {/* Step 1 — Main category */}
                     {step === "category" && (
                         <div className="grid grid-cols-2 gap-3 py-2">
-                            {categories.map((cat) => {
+                            {categoryOptions.map((cat) => {
                                 const meta = CATEGORY_META[cat.mainCategory]
                                 if (!meta) return null
                                 const canCreate = canCreateListing(session?.user, cat.mainCategory)
@@ -493,6 +502,7 @@ export default function AccountListingsTab() {
                                             <p className="text-xs opacity-70 mt-0.5 leading-tight">{meta.description}</p>
                                         </div>
                                         <p className="text-xs opacity-80">{canCreate ? "Eligible" : `Requires ${requiredRole}`}</p>
+                                        {!canCreate ? <p className="text-xs underline">Add role in Roles tab</p> : null}
                                         <ChevronRight className="h-4 w-4 self-end opacity-40 mt-auto" />
                                     </button>
                                 )

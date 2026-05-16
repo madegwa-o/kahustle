@@ -59,8 +59,14 @@ export const CreateJobForm = memo(function CreateJobForm({
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
 
+    const inputFieldMap = {
+        responsibilities: "responsibilityInput",
+        qualifications: "qualificationInput",
+        benefits: "benefitInput",
+    } as const
+
     const handleAddItem = (type: "responsibilities" | "qualifications" | "benefits") => {
-        const inputField = `${type.slice(0, -1)}Input` as keyof typeof formData
+        const inputField = inputFieldMap[type]
         const inputValue = formData[inputField] as string
         if (inputValue.trim()) {
             setFormData((prev) => ({

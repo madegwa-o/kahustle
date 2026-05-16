@@ -1,11 +1,12 @@
-import NextAuth, { type DefaultSession } from "next-auth"
+import NextAuth, { type NextAuthOptions, type DefaultSession } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { getUserByEmail } from "@/lib/users"
 import { User } from "@/models/User"
 import { Role } from "@/lib/roles"
 import { connectToDatabase } from "@/lib/db"
 
-// Extend NextAuth types to include roles
+// ── Type augmentation ────────────────────────────────────────────────────────
+
 declare module "next-auth" {
     interface Session {
         user: {
@@ -13,7 +14,6 @@ declare module "next-auth" {
             roles?: string[]
         } & DefaultSession["user"]
     }
-
     interface User {
         id: string
         roles?: string[]
@@ -27,7 +27,17 @@ declare module "next-auth/jwt" {
     }
 }
 
-const handler = NextAuth({
+// ── Auth options (exported so getServerSession(authOptions) works) ────────────
+
+export const authOptions: NextAuthOptions = {
+    secret: process.env.NEXTAUTH_SECRET,
+    debug: process.env.NODE_ENV === "development",
+
+    pages: {
+        signIn: "/signin",
+        error: "/signin",
+    },
+
     providers: [
         CredentialsProvider({
             name: "Credentials",
@@ -36,29 +46,22 @@ const handler = NextAuth({
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                if (!credentials?.identifier || !credentials?.password) {
-                    return null
-                }
+                if (!credentials?.identifier || !credentials?.password) return null
 
                 try {
                     await connectToDatabase()
-                    
-                    // Try to find user by email first, then by username
-                    let user = await User.findOne({
+
+                    const user = await User.findOne({
                         $or: [
                             { email: credentials.identifier.toLowerCase() },
-                            { username: credentials.identifier }
-                        ]
+                            { username: credentials.identifier },
+                        ],
                     }).select("+password")
-                    
-                    if (!user || !user.password) {
-                        return null
-                    }
+
+                    if (!user?.password) return null
 
                     const isValid = await user.comparePassword(credentials.password)
-                    if (!isValid) {
-                        return null
-                    }
+                    if (!isValid) return null
 
                     return {
                         id: user._id.toString(),
@@ -74,19 +77,20 @@ const handler = NextAuth({
             },
         }),
     ],
-    secret: process.env.NEXTAUTH_SECRET,
+
     callbacks: {
         async jwt({ token, user, trigger }) {
+            // Runs on sign-in (user is present) or session.update() trigger
             if (user?.email || trigger === "update") {
                 try {
-                    const email = user?.email || token.email
+                    const email = user?.email ?? token.email
                     if (email) {
-                        const existingUser = await getUserByEmail(email)
-                        if (existingUser) {
-                            token.roles = existingUser.roles || [Role.USER]
-                            token.userId = existingUser._id.toString()
-                            token.name = existingUser.name
-                            token.picture = existingUser.image
+                        const dbUser = await getUserByEmail(email)
+                        if (dbUser) {
+                            token.userId  = dbUser._id.toString()
+                            token.roles   = dbUser.roles?.length ? dbUser.roles : [Role.USER]
+                            token.name    = dbUser.name
+                            token.picture = dbUser.image
                         }
                     }
                 } catch (error) {
@@ -95,26 +99,20 @@ const handler = NextAuth({
             }
             return token
         },
+
         async session({ session, token }) {
-            try {
-                if (token?.userId) {
-                    session.user.id = token.userId
-                    session.user.roles = (token.roles as string[]) || [Role.USER]
-                    session.user.name = token.name
-                    session.user.image = token.picture
-                }
-                return session
-            } catch (error) {
-                console.error("Session callback error:", error)
-                return session
+            if (token?.userId) {
+                session.user.id     = token.userId
+                session.user.roles  = (token.roles as string[]) ?? [Role.USER]
+                session.user.name   = token.name
+                session.user.image  = token.picture ?? null
             }
+            return session
         },
     },
-    pages: {
-        signIn: "/signin",
-        error: "/signin",
-    },
-    debug: process.env.NODE_ENV === "development",
-})
+}
 
+// ── Route handler ─────────────────────────────────────────────────────────────
+
+const handler = NextAuth(authOptions)
 export { handler as GET, handler as POST }
