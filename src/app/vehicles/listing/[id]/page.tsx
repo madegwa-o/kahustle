@@ -1,32 +1,24 @@
-import SpecializedProductDetailPage from "@/components/specialized-product-detail-page"
-import { MainCategory } from "@/lib/categories"
-import { Vehicle } from "@/models/Vehicle"
-
-const asText = (value: unknown) => (typeof value === "string" && value.trim().length > 0 ? value : "N/A")
-const asNumber = (value: unknown) => (typeof value === "number" ? value : null)
+import { notFound } from "next/navigation"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { getVehicle } from "@/lib/vehicles/get-vehicle"
+import { normalizeVehicleDetail } from "@/lib/vehicles/normalize-vehicle"
+import { canViewVehicleSellerContact } from "@/lib/vehicles/vehicle-permissions"
+import VehicleDetail from "@/components/vehicles/vehicle-detail"
 
 export default async function VehicleListingPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+  const [{ id }, session] = await Promise.all([params, getServerSession(authOptions)])
+
+  const raw = await getVehicle(id)
+  if (!raw) notFound()
+
+  const user = session?.user ? { _id: session.user.id ?? undefined, roles: session.user.roles } : null
+  const canViewContact = canViewVehicleSellerContact(user)
+  const vehicle = normalizeVehicleDetail(raw as never, canViewContact)
 
   return (
-    <SpecializedProductDetailPage
-      id={id}
-      config={{
-        category: "vehicles",
-        listingLabel: "Vehicle",
-        model: Vehicle,
-        callbackPrefix: "/vehicles/listing",
-        categoryKey: MainCategory.VEHICLES,
-        requiredViewRoleLabel: "CARBUYER",
-        details: (item) => [
-          { label: "Make", value: asText(item.make) },
-          { label: "Model", value: asText(item.vehicleModel) },
-          { label: "Year", value: asNumber(item.year)?.toString() ?? "N/A" },
-          { label: "Mileage", value: asNumber(item.mileage) !== null ? `${asNumber(item.mileage)?.toLocaleString()} km` : "N/A" },
-          { label: "Fuel", value: asText(item.fuelType) },
-          { label: "Transmission", value: asText(item.transmission) },
-        ],
-      }}
-    />
+      <main className="mx-auto max-w-6xl px-4 py-8">
+        <VehicleDetail vehicle={vehicle} canViewSellerContact={canViewContact} />
+      </main>
   )
 }

@@ -209,7 +209,7 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
                             {/* Product Info */}
                             <Link href={`/product/${product._id}`} className="block p-4">
                                 <h3 className="font-sans text-sm font-medium text-foreground">{product.name}</h3>
-                                <p className="mt-1 text-xs text-muted-foreground">KES {product.price.toLocaleString()}</p>
+                                {/*<p className="mt-1 text-xs text-muted-foreground">KES {product.price.toLocaleString()}</p>*/}
                                 <p className="mt-1 text-xs text-muted-foreground/70">{product.category}</p>
                                 {hasMultipleImages && (
                                     <p className="mt-1 text-xs text-muted-foreground/50">
