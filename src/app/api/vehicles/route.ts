@@ -9,7 +9,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { canCreateVehicle } from "@/lib/vehicles/vehicle-permissions"
 
 const LISTING_FIELDS =
-    "make vehicleModel year mileage fuelType transmission bodyType color condition price images location status createdAt userId"
+    "subcategory make vehicleModel year mileage fuelType transmission bodyType color condition price images location status createdAt userId"
 
 export async function GET(request: NextRequest) {
   try {

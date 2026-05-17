@@ -16,7 +16,7 @@ export default function PropertyGallery({ images }: { images: string[] }) {
   return (
       <div className="space-y-2">
         <div className="relative overflow-hidden rounded-xl bg-muted aspect-[16/9]">
-          <img src={images[active]} alt={`Vehicle image ${active + 1}`} className="h-full w-full object-cover" />
+          <img src={images[active]} alt={`Property image ${active + 1}`} className="h-full w-full object-cover" />
           {images.length > 1 && (
               <>
                 <button onClick={() => setActive(i => (i - 1 + images.length) % images.length)}

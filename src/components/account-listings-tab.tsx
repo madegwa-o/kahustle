@@ -217,7 +217,7 @@ export default function AccountListingsTab() {
 
     // ── Submission ───���──────────────────────────────────────────────────────
 
-    const handleFormSubmit = async (data: any) => {
+    const handleFormSubmit = async (data: Record<string, unknown>) => {
         if (!selectedCategory || !session?.user) return
         setIsCreating(true)
         setError(null)
@@ -534,6 +534,7 @@ export default function AccountListingsTab() {
                             onSubmit={handleFormSubmit}
                             isLoading={isCreating}
                             inline
+                            defaultSubcategory={selectedSubcategory}
                         />
                     )}
                     {step === "form" && selectedCategory?.mainCategory === MainCategory.PROPERTIES && (
@@ -543,6 +544,7 @@ export default function AccountListingsTab() {
                             onSubmit={handleFormSubmit}
                             isLoading={isCreating}
                             inline
+                            defaultSubcategory={selectedSubcategory}
                         />
                     )}
                     {step === "form" && selectedCategory?.mainCategory === MainCategory.CAREERS && (
@@ -561,6 +563,7 @@ export default function AccountListingsTab() {
                             onSubmit={handleFormSubmit}
                             isLoading={isCreating}
                             inline
+                            defaultSubcategory={selectedSubcategory}
                         />
                     )}
 

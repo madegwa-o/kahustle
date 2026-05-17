@@ -17,6 +17,7 @@ export function normalizeVehicleListing(vehicle: AnyVehicle) {
   return {
     id,
     name: formatVehicleTitle(vehicle.make, vehicle.vehicleModel, vehicle.year),
+    subcategory: vehicle.subcategory,
     make: vehicle.make,
     vehicleModel: vehicle.vehicleModel,
     year: vehicle.year,

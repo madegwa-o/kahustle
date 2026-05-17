@@ -16,13 +16,18 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { CloudinaryImageUploader } from "@/components/cloudinary-image-uploader"
+import { MainCategory } from "@/lib/categories"
+import { useMainCategorySubcategories } from "@/hooks/use-main-category-subcategories"
+
+type FormValue = string | boolean | string[]
 
 interface CreateConstructionServiceFormProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    onSubmit: (data: any) => Promise<void>
+    onSubmit: (data: Record<string, unknown>) => Promise<void>
     isLoading?: boolean
     inline?: boolean
+    defaultSubcategory?: { label: string; slug: string } | null
 }
 
 export const CreateConstructionServiceForm = memo(function CreateConstructionServiceForm({
@@ -31,12 +36,14 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
                                                                                              onSubmit,
                                                                                              isLoading = false,
                                                                                              inline = false,
+                                                                                             defaultSubcategory = null,
                                                                                          }: CreateConstructionServiceFormProps) {
     const [formData, setFormData] = useState({
         name: "",
         description: "",
         price: "",
-        category: "",
+        subcategory: defaultSubcategory?.slug ?? "",
+        category: defaultSubcategory?.label ?? "",
         expertise: [] as string[],
         expertiseInput: "",
         yearsOfExperience: "",
@@ -52,7 +59,9 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
         images: [] as string[],
     })
 
-    const handleInputChange = (field: string, value: any) => {
+    const { subcategories, isLoading: isLoadingSubcategories } = useMainCategorySubcategories(MainCategory.CONSTRUCTION_FREELANCERS)
+
+    const handleInputChange = (field: string, value: FormValue) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
 
@@ -77,7 +86,8 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
             name: "",
             description: "",
             price: "",
-            category: "",
+            subcategory: defaultSubcategory?.slug ?? "",
+            category: defaultSubcategory?.label ?? "",
             expertise: [],
             expertiseInput: "",
             yearsOfExperience: "",
@@ -95,13 +105,14 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
     }
 
     const handleSubmit = async () => {
-        const requiredFields = ["name", "price", "category", "yearsOfExperience", "availability", "priceType"]
+        const requiredFields = ["name", "price", "subcategory", "category", "yearsOfExperience", "availability", "priceType"]
         if (requiredFields.some((f) => !formData[f as keyof typeof formData])) return
 
         await onSubmit({
             name: formData.name,
             description: formData.description,
             price: parseFloat(formData.price),
+            subcategory: formData.subcategory,
             category: formData.category,
             expertise: formData.expertise,
             yearsOfExperience: parseInt(formData.yearsOfExperience),
@@ -120,7 +131,7 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
     }
 
     const isFormValid =
-        formData.name && formData.price && formData.category &&
+        formData.name && formData.price && formData.subcategory && formData.category &&
         formData.yearsOfExperience && formData.availability && formData.priceType
 
     const TagList = ({
@@ -192,14 +203,25 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <Label htmlFor="cs-category">Category *</Label>
-                    <Input
-                        id="cs-category"
-                        placeholder="Painting"
-                        value={formData.category}
-                        onChange={(e) => handleInputChange("category", e.target.value)}
-                        disabled={isLoading}
-                    />
+                    <Label htmlFor="cs-subcategory">Subcategory *</Label>
+                    <Select
+                        value={formData.subcategory}
+                        onValueChange={(slug) => {
+                            const selected = subcategories.find((subcategory) => subcategory.slug === slug)
+                            handleInputChange("subcategory", slug)
+                            handleInputChange("category", selected?.label ?? slug)
+                        }}
+                        disabled={isLoading || isLoadingSubcategories || subcategories.length === 0}
+                    >
+                        <SelectTrigger id="cs-subcategory">
+                            <SelectValue placeholder={isLoadingSubcategories ? "Loading subcategories..." : "Select subcategory"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {subcategories.map((subcategory) => (
+                                <SelectItem key={subcategory.slug} value={subcategory.slug}>{subcategory.label}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
                 <div>
                     <Label htmlFor="cs-exp">Years of Experience *</Label>
