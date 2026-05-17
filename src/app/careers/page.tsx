@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { CreateJobForm } from "@/components/forms/create-job-form"
 import CareerFilters from "@/components/careers/career-filters"
 import CareersGrid from "@/components/careers/careers-grid"
-import { useCareers } from "@/hooks/use-careers"
+import { useCareers } from "@/hooks/careers/use-careers"
 import { canCreateCareer } from "@/lib/careers/career-permissions"
 
 export default function CareersPage() {

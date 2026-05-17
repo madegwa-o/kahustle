@@ -1,32 +1,24 @@
-import SpecializedProductDetailPage from "@/components/specialized-product-detail-page"
-import { MainCategory } from "@/lib/categories"
-import { ConstructionService } from "@/models/ConstructionService"
-
-const asText = (value: unknown) => (typeof value === "string" && value.trim().length > 0 ? value : "N/A")
-const asNumber = (value: unknown) => (typeof value === "number" ? value : null)
+import { notFound } from "next/navigation"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { getConstructionService } from "@/lib/construction-freelancers/get-construction-service"
+import { normalizeConstructionDetail } from "@/lib/construction-freelancers/normalize-construction"
+import { canViewConstructionFreelancerContact } from "@/lib/construction-freelancers/construction-permissions"
+import ConstructionServiceDetail from "@/components/construction-freelancers/construction-service-detail"
 
 export default async function ConstructionListingPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+    const [{ id }, session] = await Promise.all([params, getServerSession(authOptions)])
 
-  return (
-    <SpecializedProductDetailPage
-      id={id}
-      config={{
-        category: "construction-freelancers",
-        listingLabel: "Construction Freelancer",
-        model: ConstructionService,
-        callbackPrefix: "/construction-freelancers/listing",
-        categoryKey: MainCategory.CONSTRUCTION_FREELANCERS,
-        requiredViewRoleLabel: "CONSTRUCTION_FREELANCER_SEEKER",
-        details: (item) => [
-          { label: "Specialty", value: asText(item.category) },
-          { label: "Experience", value: `${asNumber(item.yearsOfExperience) ?? 0} years` },
-          { label: "Price Type", value: asText(item.priceType) },
-          { label: "Availability", value: asText(item.availability) },
-          { label: "Insured", value: item.insurance === true ? "Yes" : "No" },
-          { label: "Service Areas", value: Array.isArray(item.serviceArea) ? item.serviceArea.filter((x): x is string => typeof x === "string").join(", ") || "N/A" : "N/A" },
-        ],
-      }}
-    />
-  )
+    const raw = await getConstructionService(id)
+    if (!raw) notFound()
+
+    const user = session?.user ? { _id: session.user.id ?? undefined, roles: session.user.roles } : null
+    const canViewContact = canViewConstructionFreelancerContact(user)
+    const service = normalizeConstructionDetail(raw as never, canViewContact)
+
+    return (
+        <main className="mx-auto max-w-6xl px-4 py-8">
+            <ConstructionServiceDetail service={service} canViewFreelancerContact={canViewContact} />
+        </main>
+    )
 }

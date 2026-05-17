@@ -14,7 +14,7 @@ interface Props {
     onChange: (key: string, value: string) => void
 }
 
-export default function VehicleFilters({ values, onChange }: Props) {
+export default function ConstructionServiceFilters({ values, onChange }: Props) {
     const hasFilters = ["search", "make", "fuelType", "transmission", "condition", "minPrice", "maxPrice"].some(k => values.get(k))
 
     return (
