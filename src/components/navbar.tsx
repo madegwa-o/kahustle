@@ -35,8 +35,6 @@ const staticNavLinks: NavCategory[] = [
     { label: "Home", href: "/" },
     { label: "Careers", href: "/careers" },
     { label: "Pricing", href: "/pricing" },
-    { label: "Contact", href: "/contact" },
-    { label: "About Us", href: "/about" },
 ]
 
 const dynamicCategories: { label: string; href: string; slug: string }[] = [
