@@ -1,2 +1,6 @@
-import { VehicleListing } from "@/lib/vehicles/types"
-export default function ConstructionServiceMeta({ vehicle }: { vehicle: VehicleListing }) { return <p className="text-sm text-gray-600">{vehicle.year} • {vehicle.condition} • {vehicle.location}</p> }
+import { ConstructionListing } from "@/lib/construction-freelancers/types"
+import { formatExperience } from "@/lib/construction-freelancers/construction-formatters"
+
+export default function ConstructionServiceMeta({ service }: { service: ConstructionListing }) {
+  return <p className="text-sm text-gray-600">{service.category} • {formatExperience(service.yearsOfExperience)} • {service.serviceArea?.[0]}</p>
+}
