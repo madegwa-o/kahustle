@@ -6,7 +6,7 @@ import ConstructionServicesGrid from "@/components/construction-freelancers/cons
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { CreateConstructionServiceForm } from "@/components/forms/create-construction-service-form"
-import { canCreateConstructionService } from "@/lib/construction-freelancers/construction-service-permissions"
+import { canCreateConstructionService } from "@/lib/construction-freelancers/construction-permissions"
 import { useSession } from "next-auth/react"
 
 export default function ConstructionFreelancersPage() {
