@@ -27,6 +27,7 @@ export function constructionSortToMongo(sort: string | null): Record<string, 1 |
 
 export function buildConstructionQuery(searchParams: URLSearchParams): FilterQuery<IConstructionService> {
   const filter: FilterQuery<IConstructionService> = { status: "active" }
+  const andClauses: FilterQuery<IConstructionService>[] = []
 
   const serviceArea = searchParams.get("serviceArea")
   if (serviceArea) filter.serviceArea = { $in: [new RegExp(escapeRegex(serviceArea), "i")] } as never
@@ -35,7 +36,10 @@ export function buildConstructionQuery(searchParams: URLSearchParams): FilterQue
   if (category) filter.category = new RegExp(escapeRegex(category), "i") as never
 
   const subcategory = searchParams.get("subcategory")
-  if (subcategory) filter.category = new RegExp(escapeRegex(subcategory), "i") as never
+  if (subcategory) {
+    const safeRegex = new RegExp(escapeRegex(subcategory), "i")
+    andClauses.push({ $or: [{ subcategory: safeRegex }, { category: safeRegex }] } as FilterQuery<IConstructionService>)
+  }
 
   const availability = searchParams.get("availability")
   if (availability) filter.availability = availability as never
@@ -53,8 +57,10 @@ export function buildConstructionQuery(searchParams: URLSearchParams): FilterQue
   const search = searchParams.get("search")
   if (search) {
     const safeRegex = new RegExp(escapeRegex(search), "i")
-    filter.$or = [{ name: safeRegex }, { description: safeRegex }, { category: safeRegex }, { expertise: safeRegex }]
+    andClauses.push({ $or: [{ name: safeRegex }, { description: safeRegex }, { category: safeRegex }, { expertise: safeRegex }] } as FilterQuery<IConstructionService>)
   }
+
+  if (andClauses.length) filter.$and = andClauses
 
   return filter
 }

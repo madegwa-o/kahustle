@@ -6,6 +6,24 @@ import { Property } from "@/models/Property"
 import { Job } from "@/models/Job"
 import { ConstructionService } from "@/models/ConstructionService"
 
+type FeedItem = {
+  _id: { toString(): string } | string
+  name?: string
+  description?: string
+  price?: number
+  category?: string
+  subcategory?: string
+  bodyType?: string
+  propertyType?: string
+  jobTitle?: string
+  images?: unknown[]
+  createdAt?: Date | string
+  detailUrl?: string
+  _model?: string
+}
+
+const itemId = (item: FeedItem) => typeof item._id === "string" ? item._id : item._id.toString()
+
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase()
@@ -19,6 +37,7 @@ export async function GET(request: NextRequest) {
     const categories = searchParams.getAll("categories").map((c) => c.toLowerCase().trim()).filter(Boolean)
     const priceMin = searchParams.get("priceMin")
     const priceMax = searchParams.get("priceMax")
+    const categoryRegexes = categories.map((category) => new RegExp(category, "i"))
 
     // Base filter for all models
     const baseFilter: Record<string, unknown> = { status: "active" }
@@ -56,30 +75,40 @@ export async function GET(request: NextRequest) {
       search
         ? Vehicle.find({
             ...baseFilter,
-            $or: [
-              { name: { $regex: search, $options: "i" } },
-              { description: { $regex: search, $options: "i" } },
+            $and: [
+              {
+                $or: [
+                  { name: { $regex: search, $options: "i" } },
+                  { description: { $regex: search, $options: "i" } },
+                ],
+              },
+              ...(categories.length > 0 ? [{ $or: [{ subcategory: { $in: categoryRegexes } }, { bodyType: { $in: categoryRegexes } }] }] : []),
             ],
           })
             .sort(sortConfig)
             .lean()
         : categories.length === 0
           ? Vehicle.find(baseFilter).sort(sortConfig).lean()
-          : Vehicle.find(baseFilter).sort(sortConfig).lean(), // Vehicles don't have category filter
+          : Vehicle.find({ ...baseFilter, $or: [{ subcategory: { $in: categoryRegexes } }, { bodyType: { $in: categoryRegexes } }] }).sort(sortConfig).lean(),
 
       search
         ? Property.find({
             ...baseFilter,
-            $or: [
-              { name: { $regex: search, $options: "i" } },
-              { description: { $regex: search, $options: "i" } },
+            $and: [
+              {
+                $or: [
+                  { name: { $regex: search, $options: "i" } },
+                  { description: { $regex: search, $options: "i" } },
+                ],
+              },
+              ...(categories.length > 0 ? [{ $or: [{ subcategory: { $in: categoryRegexes } }, { propertyType: { $in: categoryRegexes } }] }] : []),
             ],
           })
             .sort(sortConfig)
             .lean()
         : categories.length === 0
           ? Property.find(baseFilter).sort(sortConfig).lean()
-          : Property.find(baseFilter).sort(sortConfig).lean(),
+          : Property.find({ ...baseFilter, $or: [{ subcategory: { $in: categoryRegexes } }, { propertyType: { $in: categoryRegexes } }] }).sort(sortConfig).lean(),
 
       search
         ? Job.find({
@@ -99,10 +128,15 @@ export async function GET(request: NextRequest) {
       search
         ? ConstructionService.find({
             ...baseFilter,
-            $or: [
-              { name: { $regex: search, $options: "i" } },
-              { description: { $regex: search, $options: "i" } },
-              { category: { $regex: search, $options: "i" } },
+            $and: [
+              {
+                $or: [
+                  { name: { $regex: search, $options: "i" } },
+                  { description: { $regex: search, $options: "i" } },
+                  { category: { $regex: search, $options: "i" } },
+                ],
+              },
+              ...(categories.length > 0 ? [{ $or: [{ subcategory: { $in: categoryRegexes } }, { category: { $in: categoryRegexes } }] }] : []),
             ],
           })
             .sort(sortConfig)
@@ -110,7 +144,7 @@ export async function GET(request: NextRequest) {
         : categories.length > 0
           ? ConstructionService.find({
               ...baseFilter,
-              category: { $in: categories },
+              $or: [{ subcategory: { $in: categoryRegexes } }, { category: { $in: categoryRegexes } }],
             })
               .sort(sortConfig)
               .lean()
@@ -119,23 +153,24 @@ export async function GET(request: NextRequest) {
 
     // Combine and normalize results
     const allItems = [
-      ...products.map((p: any) => ({ ...p, _model: "Product", category: p.category })),
-      ...vehicles.map((v: any) => ({ ...v, _model: "Vehicle", category: "vehicles" })),
-      ...properties.map((p: any) => ({ ...p, _model: "Property", category: "properties" })),
-      ...jobs.map((j: any) => ({ ...j, _model: "Job", category: "careers" })),
-      ...constructionServices.map((cs: any) => ({
+      ...products.map((p) => ({ ...p, _model: "Product", category: p.category, detailUrl: `/product/${itemId(p as FeedItem)}` })),
+      ...vehicles.map((v) => ({ ...v, _model: "Vehicle", category: v.subcategory || "vehicles", detailUrl: `/vehicles/listing/${itemId(v as FeedItem)}` })),
+      ...properties.map((p) => ({ ...p, _model: "Property", category: p.subcategory || "properties", detailUrl: `/properties/listing/${itemId(p as FeedItem)}` })),
+      ...jobs.map((j) => ({ ...j, _model: "Job", category: "careers", detailUrl: `/careers/listing/${itemId(j as FeedItem)}` })),
+      ...constructionServices.map((cs) => ({
         ...cs,
         _model: "ConstructionService",
-        category: cs.category?.toLowerCase() || "construction-service",
+        category: cs.subcategory || cs.category?.toLowerCase() || "construction-service",
+        detailUrl: `/construction-freelancers/listing/${itemId(cs as FeedItem)}`,
       })),
-    ]
+    ] as FeedItem[]
 
     // Apply search filtering if needed (for combined results)
     let filteredItems = allItems
     if (search) {
       const searchLower = search.toLowerCase()
       filteredItems = allItems.filter(
-        (item: any) =>
+        (item) =>
           item.name?.toLowerCase().includes(searchLower) ||
           item.description?.toLowerCase().includes(searchLower) ||
           item.jobTitle?.toLowerCase().includes(searchLower) ||
@@ -146,17 +181,17 @@ export async function GET(request: NextRequest) {
     // Sort combined results
     const sortField = sortBy === "price" || sortBy === "name" || sortBy === "createdAt" ? sortBy : "createdAt"
     if (sortField === "createdAt") {
-      filteredItems.sort((a: any, b: any) => {
-        const aTime = new Date(a.createdAt).getTime()
-        const bTime = new Date(b.createdAt).getTime()
+      filteredItems.sort((a, b) => {
+        const aTime = new Date(a.createdAt ?? 0).getTime()
+        const bTime = new Date(b.createdAt ?? 0).getTime()
         return sortOrder === 1 ? aTime - bTime : bTime - aTime
       })
     } else if (sortField === "price") {
-      filteredItems.sort((a: any, b: any) => {
-        return sortOrder === 1 ? a.price - b.price : b.price - a.price
+      filteredItems.sort((a, b) => {
+        return sortOrder === 1 ? (a.price ?? 0) - (b.price ?? 0) : (b.price ?? 0) - (a.price ?? 0)
       })
     } else if (sortField === "name") {
-      filteredItems.sort((a: any, b: any) => {
+      filteredItems.sort((a, b) => {
         const aName = (a.name || "").toLowerCase()
         const bName = (b.name || "").toLowerCase()
         return sortOrder === 1 ? aName.localeCompare(bName) : bName.localeCompare(aName)

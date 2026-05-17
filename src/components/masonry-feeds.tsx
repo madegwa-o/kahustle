@@ -19,6 +19,7 @@ interface PopulatedProduct {
         url: string
         alt?: string
     }>
+    detailUrl?: string
     shop?: {
         _id: string
         name: string
@@ -160,6 +161,7 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
                         typeof img === 'string' ? img : img.url
                     ).filter(Boolean)
                     const hasMultipleImages = imageUrls && imageUrls.length > 1
+                    const detailUrl = product.detailUrl || `/product/${product._id}`
 
                     return (
                         <div
@@ -173,7 +175,7 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
                                         {imageUrls.map((imageUrl, idx) => (
                                             <Link
                                                 key={idx}
-                                                href={`/product/${product._id}`}
+                                                href={detailUrl}
                                                 className="relative flex-shrink-0 w-full"
                                             >
                                                 <div className="relative w-full" style={{ height: `${height}px` }}>
@@ -193,7 +195,7 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
                                     <ScrollBar orientation="horizontal" className="h-2" />
                                 </ScrollArea>
                             ) : (
-                                <Link href={`/product/${product._id}`} className="relative block">
+                                <Link href={detailUrl} className="relative block">
                                     <Image
                                         src={imageUrls?.[0] || "/placeholder.svg"}
                                         alt={product.name}
@@ -207,7 +209,7 @@ export default function MasonryFeeds({ filters, onLoadingChange }: MasonryFeedsP
                             )}
 
                             {/* Product Info */}
-                            <Link href={`/product/${product._id}`} className="block p-4">
+                            <Link href={detailUrl} className="block p-4">
                                 <h3 className="font-sans text-sm font-medium text-foreground">{product.name}</h3>
                                 {/*<p className="mt-1 text-xs text-muted-foreground">KES {product.price.toLocaleString()}</p>*/}
                                 <p className="mt-1 text-xs text-muted-foreground/70">{product.category}</p>

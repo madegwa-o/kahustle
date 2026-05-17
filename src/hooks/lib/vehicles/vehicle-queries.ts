@@ -31,6 +31,7 @@ export function vehicleSortToMongo(sort: string | null): Record<string, 1 | -1> 
 
 export function buildVehicleQuery(searchParams: URLSearchParams): FilterQuery<IVehicle> {
   const filter: FilterQuery<IVehicle> = { status: "active" }
+  const andClauses: FilterQuery<IVehicle>[] = []
 
   const exactFields = ["make", "vehicleModel", "condition", "fuelType", "transmission", "bodyType", "location"]
   exactFields.forEach((field) => {
@@ -38,9 +39,11 @@ export function buildVehicleQuery(searchParams: URLSearchParams): FilterQuery<IV
     if (value) filter[field as keyof IVehicle] = new RegExp(escapeRegex(value), "i") as never
   })
 
-  // subcategory maps to bodyType
   const subcategory = searchParams.get("subcategory")
-  if (subcategory) filter.bodyType = new RegExp(escapeRegex(subcategory), "i") as never
+  if (subcategory) {
+    const safeRegex = new RegExp(escapeRegex(subcategory), "i")
+    andClauses.push({ $or: [{ subcategory: safeRegex }, { bodyType: safeRegex }] } as FilterQuery<IVehicle>)
+  }
 
   const year = searchParams.get("year")
   if (year && Number.isFinite(Number(year))) filter.year = Number(year)
@@ -62,8 +65,10 @@ export function buildVehicleQuery(searchParams: URLSearchParams): FilterQuery<IV
   const search = searchParams.get("search")
   if (search) {
     const safeRegex = new RegExp(escapeRegex(search), "i")
-    filter.$or = [{ name: safeRegex }, { make: safeRegex }, { vehicleModel: safeRegex }, { description: safeRegex }]
+    andClauses.push({ $or: [{ name: safeRegex }, { make: safeRegex }, { vehicleModel: safeRegex }, { description: safeRegex }] } as FilterQuery<IVehicle>)
   }
+
+  if (andClauses.length) filter.$and = andClauses
 
   return filter
 }

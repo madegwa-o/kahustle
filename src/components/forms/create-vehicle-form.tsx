@@ -16,13 +16,18 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { CloudinaryImageUploader } from "@/components/cloudinary-image-uploader"
+import { MainCategory } from "@/lib/categories"
+import { useMainCategorySubcategories } from "@/hooks/use-main-category-subcategories"
+
+type FormValue = string | boolean | string[]
 
 interface CreateVehicleFormProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    onSubmit: (data: any) => Promise<void>
+    onSubmit: (data: Record<string, unknown>) => Promise<void>
     isLoading?: boolean
     inline?: boolean
+    defaultSubcategory?: { label: string; slug: string } | null
 }
 
 export const CreateVehicleForm = memo(function CreateVehicleForm({
@@ -31,11 +36,13 @@ export const CreateVehicleForm = memo(function CreateVehicleForm({
                                                                      onSubmit,
                                                                      isLoading = false,
                                                                      inline = false,
+                                                                     defaultSubcategory = null,
                                                                  }: CreateVehicleFormProps) {
     const [formData, setFormData] = useState({
         name: "",
         description: "",
         price: "",
+        subcategory: defaultSubcategory?.slug ?? "",
         make: "",
         vehicleModel: "",
         year: new Date().getFullYear().toString(),
@@ -49,7 +56,9 @@ export const CreateVehicleForm = memo(function CreateVehicleForm({
         images: [] as string[],
     })
 
-    const handleInputChange = (field: string, value: any) => {
+    const { subcategories, isLoading: isLoadingSubcategories } = useMainCategorySubcategories(MainCategory.VEHICLES)
+
+    const handleInputChange = (field: string, value: FormValue) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
 
@@ -58,6 +67,7 @@ export const CreateVehicleForm = memo(function CreateVehicleForm({
             name: "",
             description: "",
             price: "",
+            subcategory: defaultSubcategory?.slug ?? "",
             make: "",
             vehicleModel: "",
             year: new Date().getFullYear().toString(),
@@ -73,7 +83,7 @@ export const CreateVehicleForm = memo(function CreateVehicleForm({
     }
 
     const handleSubmit = async () => {
-        const requiredFields = ["name", "price", "make", "vehicleModel", "year", "mileage", "fuelType", "transmission", "bodyType", "color", "condition"]
+        const requiredFields = ["name", "price", "subcategory", "make", "vehicleModel", "year", "mileage", "fuelType", "transmission", "bodyType", "color", "condition"]
         if (requiredFields.some((f) => !formData[f as keyof typeof formData])) return
 
         await onSubmit({
@@ -88,7 +98,7 @@ export const CreateVehicleForm = memo(function CreateVehicleForm({
     }
 
     const isFormValid =
-        formData.name && formData.price && formData.make && formData.vehicleModel &&
+        formData.name && formData.price && formData.subcategory && formData.make && formData.vehicleModel &&
         formData.year && formData.mileage && formData.fuelType && formData.transmission &&
         formData.bodyType && formData.color && formData.condition
 
@@ -115,6 +125,21 @@ export const CreateVehicleForm = memo(function CreateVehicleForm({
                     disabled={isLoading}
                     rows={3}
                 />
+            </div>
+
+
+            <div>
+                <Label htmlFor="v-subcategory">Subcategory *</Label>
+                <Select value={formData.subcategory} onValueChange={(v) => handleInputChange("subcategory", v)} disabled={isLoading || isLoadingSubcategories || subcategories.length === 0}>
+                    <SelectTrigger id="v-subcategory">
+                        <SelectValue placeholder={isLoadingSubcategories ? "Loading subcategories..." : "Select subcategory"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {subcategories.map((subcategory) => (
+                            <SelectItem key={subcategory.slug} value={subcategory.slug}>{subcategory.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

@@ -12,6 +12,7 @@ export interface IProperty extends Document {
     createdAt: Date
     updatedAt: Date
     // Property-specific fields
+    subcategory?: string
     propertyType: "residential" | "commercial" | "land"
     bedrooms: number
     bathrooms: number
@@ -70,6 +71,12 @@ const PropertySchema = new Schema<IProperty>(
             min: 0,
         },
         // Property-specific fields
+        subcategory: {
+            type: String,
+            trim: true,
+            lowercase: true,
+            index: true,
+        },
         propertyType: {
             type: String,
             enum: ["residential", "commercial", "land"],
@@ -149,6 +156,7 @@ const PropertySchema = new Schema<IProperty>(
 // Compound indexes for common queries
 PropertySchema.index({ userId: 1, status: 1 })
 PropertySchema.index({ city: 1, status: 1 })
+PropertySchema.index({ subcategory: 1, status: 1 })
 PropertySchema.index({ propertyType: 1, status: 1 })
 PropertySchema.index({ price: 1, status: 1 })
 PropertySchema.index({ createdAt: -1 })

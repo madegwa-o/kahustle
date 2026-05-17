@@ -12,6 +12,7 @@ export interface IVehicle extends Document {
     createdAt: Date
     updatedAt: Date
     // Vehicle-specific fields
+    subcategory?: string
     make: string
     vehicleModel: string
     year: number
@@ -68,6 +69,12 @@ const VehicleSchema = new Schema<IVehicle>(
             min: 0,
         },
         // Vehicle-specific fields
+        subcategory: {
+            type: String,
+            trim: true,
+            lowercase: true,
+            index: true,
+        },
         make: {
             type: String,
             required: [true, "Vehicle make is required"],
@@ -137,6 +144,7 @@ const VehicleSchema = new Schema<IVehicle>(
 
 // Compound indexes for common queries
 VehicleSchema.index({ userId: 1, status: 1 })
+VehicleSchema.index({ subcategory: 1, status: 1 })
 VehicleSchema.index({ make: 1, status: 1 })
 VehicleSchema.index({ year: -1, status: 1 })
 VehicleSchema.index({ createdAt: -1 })

@@ -27,6 +27,7 @@ export function propertySortToMongo(sort: string | null): Record<string, 1 | -1>
 
 export function buildPropertyQuery(searchParams: URLSearchParams): FilterQuery<IProperty> {
   const filter: FilterQuery<IProperty> = { status: "active" }
+  const andClauses: FilterQuery<IProperty>[] = []
 
   const city = searchParams.get("city")
   if (city) filter.city = new RegExp(escapeRegex(city), "i") as never
@@ -38,7 +39,10 @@ export function buildPropertyQuery(searchParams: URLSearchParams): FilterQuery<I
   if (propertyType) filter.propertyType = new RegExp(escapeRegex(propertyType), "i") as never
 
   const subcategory = searchParams.get("subcategory")
-  if (subcategory) filter.propertyType = new RegExp(escapeRegex(subcategory), "i") as never
+  if (subcategory) {
+    const safeRegex = new RegExp(escapeRegex(subcategory), "i")
+    andClauses.push({ $or: [{ subcategory: safeRegex }, { propertyType: safeRegex }] } as FilterQuery<IProperty>)
+  }
 
   const minBedrooms = searchParams.get("minBedrooms")
   if (minBedrooms) filter.bedrooms = { $gte: Number(minBedrooms) } as never
@@ -56,8 +60,10 @@ export function buildPropertyQuery(searchParams: URLSearchParams): FilterQuery<I
   const search = searchParams.get("search")
   if (search) {
     const safeRegex = new RegExp(escapeRegex(search), "i")
-    filter.$or = [{ name: safeRegex }, { description: safeRegex }, { city: safeRegex }, { address: safeRegex }]
+    andClauses.push({ $or: [{ name: safeRegex }, { description: safeRegex }, { city: safeRegex }, { address: safeRegex }] } as FilterQuery<IProperty>)
   }
+
+  if (andClauses.length) filter.$and = andClauses
 
   return filter
 }
