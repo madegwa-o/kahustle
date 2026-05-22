@@ -129,7 +129,7 @@ export default function AccountListingsTab() {
                     fetch(canManageAll ? "/api/construction-services" : `/api/construction-services?userId=${session.user.id}`),
                     fetch(canManageAll ? "/api/products" : `/api/products?userId=${session.user.id}`),
                 ])
-                
+
                 const catData = await catRes.json()
                 const vehiclesData = await vehiclesRes.json()
                 const propertiesData = await propertiesRes.json()
@@ -138,7 +138,7 @@ export default function AccountListingsTab() {
                 const productsData = await productsRes.json()
 
                 if (catData.categories) setCategories(catData.categories)
-                
+
                 // Aggregate all products from different endpoints
                 const allProducts: Product[] = [
                     ...(productsData.products || []),
@@ -147,7 +147,7 @@ export default function AccountListingsTab() {
                     ...(jobsData.jobs || []),
                     ...(constructionData.services || []),
                 ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                
+
                 setProducts(allProducts)
                 if (allProducts.length === 0 && !productsData.success && !vehiclesData.vehicles && !propertiesData.properties && !jobsData.jobs && !constructionData.services) {
                     setError("Failed to load your listings")
@@ -217,7 +217,7 @@ export default function AccountListingsTab() {
 
     // ── Submission ───���──────────────────────────────────────────────────────
 
-    const handleFormSubmit = async (data: any) => {
+    const handleFormSubmit = async (data: Record<string, unknown>) => {
         if (!selectedCategory || !session?.user) return
         setIsCreating(true)
         setError(null)
@@ -236,7 +236,7 @@ export default function AccountListingsTab() {
                 return
             }
             setSuccess(SUCCESS_MSG[selectedCategory.mainCategory])
-            
+
             // Reload all listings after successful creation
             setTimeout(() => {
                 const load = async () => {
@@ -248,13 +248,13 @@ export default function AccountListingsTab() {
                             fetch(canManageAll ? "/api/construction-services" : `/api/construction-services?userId=${session.user.id}`),
                             fetch(canManageAll ? "/api/products" : `/api/products?userId=${session.user.id}`),
                         ])
-                        
+
                         const vehiclesData = await vehiclesRes.json()
                         const propertiesData = await propertiesRes.json()
                         const jobsData = await jobsRes.json()
                         const constructionData = await constructionRes.json()
                         const productsData = await productsRes.json()
-                        
+
                         const allProducts: Product[] = [
                             ...(productsData.products || []),
                             ...(vehiclesData.vehicles || []),
@@ -262,7 +262,7 @@ export default function AccountListingsTab() {
                             ...(jobsData.jobs || []),
                             ...(constructionData.services || []),
                         ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                        
+
                         setProducts(allProducts)
                     } catch (err) {
                         console.error("[v0] Error reloading listings:", err)
@@ -292,7 +292,7 @@ export default function AccountListingsTab() {
                 `/api/jobs/${id}`,
                 `/api/construction-services/${id}`,
             ]
-            
+
             let deleted = false
             for (const endpoint of endpoints) {
                 try {
@@ -305,12 +305,12 @@ export default function AccountListingsTab() {
                     // Continue to next endpoint
                 }
             }
-            
+
             if (!deleted) {
                 setError("Delete failed")
                 return
             }
-            
+
             setProducts(prev => prev.filter(p => p._id !== id))
             setSuccess("Listing deleted")
             setTimeout(() => setSuccess(null), 2000)
@@ -534,6 +534,7 @@ export default function AccountListingsTab() {
                             onSubmit={handleFormSubmit}
                             isLoading={isCreating}
                             inline
+                            defaultSubcategory={selectedSubcategory}
                         />
                     )}
                     {step === "form" && selectedCategory?.mainCategory === MainCategory.PROPERTIES && (
@@ -543,6 +544,7 @@ export default function AccountListingsTab() {
                             onSubmit={handleFormSubmit}
                             isLoading={isCreating}
                             inline
+                            defaultSubcategory={selectedSubcategory}
                         />
                     )}
                     {step === "form" && selectedCategory?.mainCategory === MainCategory.CAREERS && (
@@ -561,6 +563,7 @@ export default function AccountListingsTab() {
                             onSubmit={handleFormSubmit}
                             isLoading={isCreating}
                             inline
+                            defaultSubcategory={selectedSubcategory}
                         />
                     )}
 

@@ -16,13 +16,18 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { CloudinaryImageUploader } from "@/components/cloudinary-image-uploader"
+import { MainCategory } from "@/lib/categories"
+import { useMainCategorySubcategories } from "@/hooks/use-main-category-subcategories"
+
+type FormValue = string | boolean | string[]
 
 interface CreatePropertyFormProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    onSubmit: (data: any) => Promise<void>
+    onSubmit: (data: Record<string, unknown>) => Promise<void>
     isLoading?: boolean
     inline?: boolean
+    defaultSubcategory?: { label: string; slug: string } | null
 }
 
 export const CreatePropertyForm = memo(function CreatePropertyForm({
@@ -31,11 +36,13 @@ export const CreatePropertyForm = memo(function CreatePropertyForm({
                                                                        onSubmit,
                                                                        isLoading = false,
                                                                        inline = false,
+                                                                       defaultSubcategory = null,
                                                                    }: CreatePropertyFormProps) {
     const [formData, setFormData] = useState({
         name: "",
         description: "",
         price: "",
+        subcategory: defaultSubcategory?.slug ?? "",
         propertyType: "",
         bedrooms: "",
         bathrooms: "",
@@ -52,7 +59,9 @@ export const CreatePropertyForm = memo(function CreatePropertyForm({
         images: [] as string[],
     })
 
-    const handleInputChange = (field: string, value: any) => {
+    const { subcategories, isLoading: isLoadingSubcategories } = useMainCategorySubcategories(MainCategory.PROPERTIES)
+
+    const handleInputChange = (field: string, value: FormValue) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
 
@@ -78,6 +87,7 @@ export const CreatePropertyForm = memo(function CreatePropertyForm({
             name: "",
             description: "",
             price: "",
+            subcategory: defaultSubcategory?.slug ?? "",
             propertyType: "",
             bedrooms: "",
             bathrooms: "",
@@ -96,13 +106,14 @@ export const CreatePropertyForm = memo(function CreatePropertyForm({
     }
 
     const handleSubmit = async () => {
-        const requiredFields = ["name", "price", "propertyType", "bedrooms", "bathrooms", "squareFeet", "address", "city", "state", "postalCode", "condition"]
+        const requiredFields = ["name", "price", "subcategory", "propertyType", "bedrooms", "bathrooms", "squareFeet", "address", "city", "state", "postalCode", "condition"]
         if (requiredFields.some((f) => !formData[f as keyof typeof formData])) return
 
         await onSubmit({
             name: formData.name,
             description: formData.description,
             price: parseFloat(formData.price),
+            subcategory: formData.subcategory,
             propertyType: formData.propertyType,
             bedrooms: parseInt(formData.bedrooms),
             bathrooms: parseFloat(formData.bathrooms),
@@ -123,7 +134,7 @@ export const CreatePropertyForm = memo(function CreatePropertyForm({
     }
 
     const isFormValid =
-        formData.name && formData.price && formData.propertyType && formData.bedrooms &&
+        formData.name && formData.price && formData.subcategory && formData.propertyType && formData.bedrooms &&
         formData.bathrooms && formData.squareFeet && formData.address && formData.city &&
         formData.state && formData.postalCode && formData.condition
 
@@ -150,6 +161,21 @@ export const CreatePropertyForm = memo(function CreatePropertyForm({
                     disabled={isLoading}
                     rows={3}
                 />
+            </div>
+
+
+            <div>
+                <Label htmlFor="p-subcategory">Subcategory *</Label>
+                <Select value={formData.subcategory} onValueChange={(v) => handleInputChange("subcategory", v)} disabled={isLoading || isLoadingSubcategories || subcategories.length === 0}>
+                    <SelectTrigger id="p-subcategory">
+                        <SelectValue placeholder={isLoadingSubcategories ? "Loading subcategories..." : "Select subcategory"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {subcategories.map((subcategory) => (
+                            <SelectItem key={subcategory.slug} value={subcategory.slug}>{subcategory.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

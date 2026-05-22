@@ -16,6 +16,7 @@ export function normalizePropertyListing(property: AnyProperty) {
     price: property.price,
     currency: "KES",
     image: property.images?.[0] || null,
+    subcategory: property.subcategory,
     city: property.city,
     propertyType: property.propertyType,
     bedrooms: property.bedrooms,

@@ -1,6 +1,15 @@
+// app/api/categories/nav/route.ts
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/db"
 import { Category } from "@/models/Category"
+import { MainCategory } from "@/lib/categories"
+
+const CATEGORY_ROUTE_SLUGS: Record<MainCategory, string> = {
+    [MainCategory.VEHICLES]: "vehicles",
+    [MainCategory.CONSTRUCTION_FREELANCERS]: "construction-freelancers",
+    [MainCategory.CAREERS]: "careers",
+    [MainCategory.PROPERTIES]: "properties",
+}
 
 export async function GET() {
     await connectToDatabase()
@@ -8,14 +17,16 @@ export async function GET() {
     const categories = await Category.find(
         {},
         { mainCategory: 1, subcategories: 1 }
-    ).lean<{ mainCategory: string; subcategories: { label: string; slug: string }[] }[]>()
+    ).lean<{ mainCategory: MainCategory; subcategories: { label: string; slug: string }[] }[]>()
 
-    // Returns { "vehicles": [{label, href}, ...], "careers": [...], ... }
     const grouped = categories.reduce<Record<string, { label: string; href: string }[]>>(
         (acc, cat) => {
-            acc[cat.mainCategory] = cat.subcategories.map((sub) => ({
+            const routeSlug = CATEGORY_ROUTE_SLUGS[cat.mainCategory]
+            if (!routeSlug) return acc
+
+            acc[routeSlug] = cat.subcategories.map((sub) => ({
                 label: sub.label,
-                href: `/${cat.mainCategory}/${sub.slug}`,
+                href: `/${routeSlug}/${sub.slug}`,
             }))
             return acc
         },

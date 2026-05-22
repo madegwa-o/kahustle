@@ -12,6 +12,7 @@ export interface IConstructionService extends Document {
     createdAt: Date
     updatedAt: Date
     // Construction Service-specific fields
+    subcategory?: string
     category: string
     expertise: string[]
     yearsOfExperience: number
@@ -68,6 +69,12 @@ const ConstructionServiceSchema = new Schema<IConstructionService>(
             min: 0,
         },
         // Construction Service-specific fields
+        subcategory: {
+            type: String,
+            trim: true,
+            lowercase: true,
+            index: true,
+        },
         category: {
             type: String,
             required: [true, "Category is required"],
@@ -130,6 +137,7 @@ const ConstructionServiceSchema = new Schema<IConstructionService>(
 
 // Compound indexes for common queries
 ConstructionServiceSchema.index({ userId: 1, status: 1 })
+ConstructionServiceSchema.index({ subcategory: 1, status: 1 })
 ConstructionServiceSchema.index({ category: 1, status: 1 })
 ConstructionServiceSchema.index({ serviceArea: 1, status: 1 })
 ConstructionServiceSchema.index({ createdAt: -1 })

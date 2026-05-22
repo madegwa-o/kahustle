@@ -16,6 +16,7 @@ export function normalizeConstructionListing(service: AnyConstructionService) {
     price: service.price,
     currency: "KES",
     image: service.images?.[0] || null,
+    subcategory: service.subcategory,
     category: service.category,
     availability: service.availability,
     serviceArea: service.serviceArea || [],
