@@ -2,8 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { SearchFiltersComponent, type SearchFilters } from "@/components/search-filters"
-import MasonryFeeds from "@/components/masonry-feeds"
+// import MasonryFeeds from "@/components/masonry-feeds"
 import { useCategories } from "@/hooks/use-categories"
+import VehiclesCategoryFeed from "@/components/category-feeds/vehicles-feed"
+import PropertiesCategoryFeed from "@/components/category-feeds/properties-feed"
+import CareersCategoryFeed from "@/components/category-feeds/careers-feed"
+import ServicesCategoryFeed from "@/components/category-feeds/services-feed"
 
 export default function Home() {
     const { categories, fetchCategories } = useCategories()
@@ -27,31 +31,30 @@ export default function Home() {
 
     return (
         <div className="min-h-screen bg-background">
-            <main className="max-w-7xl mx-auto px-4 py-16 lg:py-24">
-
-                <a
-                    href="https://chat.whatsapp.com/?mode=wwt"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block mb-16 lg:mb-24 max-w-3xl transition-transform hover:opacity-90"
-                >
-                    <div>
-                        <h1 className="text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-foreground text-balance">
-                            Your Hustle Marketplace
-                        </h1>
-                        <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-2xl">
-                            Buy, sell and rent cars and properties, find a job or be a freelancer. Safe, convenient, and built for the common mwananchi.
-                        </p>
-                    </div>
-                </a>
-
-                <div className="mb-16 lg:mb-24">
+            <main className="max-w-7xl mx-auto px-4 py-8 lg:py-12">
+                {/* Search Bar */}
+                <div className="mb-16">
                     <SearchFiltersComponent categories={categories} onFiltersChange={handleFiltersChange} isLoading={isLoading} />
                 </div>
 
-                <MasonryFeeds filters={filters} onLoadingChange={setIsLoading} />
-            </main>
+                {/* Category Sections */}
+                <div className="space-y-16">
+                    {/* Vehicles Section */}
+                    <VehiclesCategoryFeed filters={filters} onLoadingChange={setIsLoading} />
 
+                    {/* Properties Section */}
+                    <PropertiesCategoryFeed filters={filters} onLoadingChange={setIsLoading} />
+
+                    {/* Careers Section */}
+                    <CareersCategoryFeed filters={filters} onLoadingChange={setIsLoading} />
+
+                    {/* Services Section */}
+                    <ServicesCategoryFeed filters={filters} onLoadingChange={setIsLoading} />
+                </div>
+
+                {/* Commented out masonry for future use */}
+                {/* <MasonryFeeds filters={filters} onLoadingChange={setIsLoading} /> */}
+            </main>
         </div>
     )
 }
