@@ -17,7 +17,7 @@ import {
     LogIn,
     LogOut,
     ShoppingBag,
-    X,
+    X, Phone,
 } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -52,10 +52,10 @@ const categoryLinks: NavCategory[] = [
 ]
 
 const accountLinks = [
-    { label: "My account", href: "/account",              icon: <LayoutDashboard className="h-[18px] w-[18px]" /> },
+    { label: "My account", href: "/account?tab=profile",              icon: <LayoutDashboard className="h-[18px] w-[18px]" /> },
     { label: "My ads",     href: "/account?tab=listings", icon: <List            className="h-[18px] w-[18px]" /> },
     { label: "Pricing",    href: "/pricing",              icon: <Tag             className="h-[18px] w-[18px]" /> },
-    { label: "Settings",   href: "/settings",             icon: <Settings        className="h-[18px] w-[18px]" /> },
+    { label: "Contact",   href: "/contact",             icon: <Phone        className="h-[18px] w-[18px]" /> },
 ]
 
 // ─── SWR ──────────────────────────────────────────────────────────────────────
