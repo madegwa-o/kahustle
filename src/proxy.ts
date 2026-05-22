@@ -14,6 +14,7 @@ const PUBLIC_ROUTES = [
     "/forgot-password",
     "/reset-password",
     "/api/feeds",
+    "/api/payments/callback",
     "/api/auth/forgot-password",
     "/api/auth/reset-password",
 ]
