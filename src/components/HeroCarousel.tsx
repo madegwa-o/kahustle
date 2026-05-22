@@ -10,25 +10,25 @@ const slides = [
         image: "/carosel/logo.png",
         title: "Your Hustle Marketplace",
         description: "Buy, sell and rent cars and properties, find a job or be a freelancer.",
-        href: "https://chat.whatsapp.com/?mode=wwt",
+        href: "https://wa.me/254115333278",
     },
     {
         image: "/carosel/car.png",
         title: "Find Your Dream Car",
         description: "Browse thousands of verified car listings from trusted sellers across Kenya.",
-        href: "/listings?category=cars",
+        href: "/vehicles",
     },
     {
         image: "/carosel/land.png",
         title: "Property for Every Budget",
         description: "Rent or buy homes, apartments and land. Safe, convenient, built for mwananchi.",
-        href: "/listings?category=property",
+        href: "/properties",
     },
     {
         image: "/carosel/freelancer.png",
         title: "Jobs & Freelance Work",
         description: "Post a job or offer your skills. Connect with opportunities across Kenya.",
-        href: "/listings?category=jobs",
+        href: "/careers",
     },
 ]
 
