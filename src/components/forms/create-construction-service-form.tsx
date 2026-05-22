@@ -19,6 +19,83 @@ import { CloudinaryImageUploader } from "@/components/cloudinary-image-uploader"
 import { MainCategory } from "@/lib/categories"
 import { useMainCategorySubcategories } from "@/hooks/use-main-category-subcategories"
 
+// ── TagList lives at module scope to prevent remount-on-every-render ──────────
+
+type ConstructionTagType = "expertise" | "serviceArea" | "certifications"
+
+interface ConstructionTagListProps {
+    type: ConstructionTagType
+    items: string[]
+    inputValue: string
+    inputField: string
+    placeholder: string
+    isLoading: boolean
+    onInputChange: (field: string, value: string) => void
+    onAdd: (type: ConstructionTagType) => void
+    onRemove: (type: ConstructionTagType, index: number) => void
+}
+
+const ConstructionTagList = ({
+                                 type,
+                                 items,
+                                 inputValue,
+                                 inputField,
+                                 placeholder,
+                                 isLoading,
+                                 onInputChange,
+                                 onAdd,
+                                 onRemove,
+                             }: ConstructionTagListProps) => (
+    <div>
+        <Label className="capitalize">
+            {type === "serviceArea" ? "Service Areas" : type}
+        </Label>
+        <div className="flex gap-2">
+            <Input
+                placeholder={placeholder}
+                value={inputValue}
+                onChange={(e) => onInputChange(inputField, e.target.value)}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault()
+                        onAdd(type)
+                    }
+                }}
+                disabled={isLoading}
+            />
+            <Button
+                variant="outline"
+                onClick={() => onAdd(type)}
+                disabled={isLoading || !inputValue.trim()}
+                type="button"
+            >
+                Add
+            </Button>
+        </div>
+        {items.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+                {items.map((item, i) => (
+                    <div
+                        key={i}
+                        className="bg-accent text-accent-foreground px-3 py-1 rounded-full flex items-center gap-2"
+                    >
+                        <span className="text-sm">{item}</span>
+                        <button
+                            onClick={() => onRemove(type, i)}
+                            type="button"
+                            className="hover:opacity-70"
+                        >
+                            <X className="h-3 w-3" />
+                        </button>
+                    </div>
+                ))}
+            </div>
+        )}
+    </div>
+)
+
+// ── Form ──────────────────────────────────────────────────────────────────────
+
 type FormValue = string | boolean | string[]
 
 interface CreateConstructionServiceFormProps {
@@ -59,26 +136,36 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
         images: [] as string[],
     })
 
-    const { subcategories, isLoading: isLoadingSubcategories } = useMainCategorySubcategories(MainCategory.CONSTRUCTION_FREELANCERS)
+    const { subcategories, isLoading: isLoadingSubcategories } =
+        useMainCategorySubcategories(MainCategory.CONSTRUCTION_FREELANCERS)
 
     const handleInputChange = (field: string, value: FormValue) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
 
-    const handleAddItem = (type: "expertise" | "serviceArea" | "certifications") => {
-        const inputField = `${type}Input` as keyof typeof formData
+    const inputFieldMap: Record<ConstructionTagType, keyof typeof formData> = {
+        expertise: "expertiseInput",
+        serviceArea: "serviceAreaInput",
+        certifications: "certificationInput",
+    }
+
+    const handleAddItem = (type: ConstructionTagType) => {
+        const inputField = inputFieldMap[type]
         const inputValue = formData[inputField] as string
         if (inputValue.trim()) {
             setFormData((prev) => ({
                 ...prev,
-                [type]: [...prev[type], inputValue.trim()],
+                [type]: [...(prev[type] as string[]), inputValue.trim()],
                 [inputField]: "",
             }))
         }
     }
 
-    const handleRemoveItem = (type: "expertise" | "serviceArea" | "certifications", index: number) => {
-        setFormData((prev) => ({ ...prev, [type]: prev[type].filter((_, i) => i !== index) }))
+    const handleRemoveItem = (type: ConstructionTagType, index: number) => {
+        setFormData((prev) => ({
+            ...prev,
+            [type]: (prev[type] as string[]).filter((_, i) => i !== index),
+        }))
     }
 
     const resetForm = () => {
@@ -105,7 +192,10 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
     }
 
     const handleSubmit = async () => {
-        const requiredFields = ["name", "price", "subcategory", "category", "yearsOfExperience", "availability", "priceType"]
+        const requiredFields = [
+            "name", "price", "subcategory", "category",
+            "yearsOfExperience", "availability", "priceType",
+        ]
         if (requiredFields.some((f) => !formData[f as keyof typeof formData])) return
 
         await onSubmit({
@@ -122,7 +212,9 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
             serviceArea: formData.serviceArea,
             priceType: formData.priceType,
             certifications: formData.certifications,
-            previousProjects: formData.previousProjects ? parseInt(formData.previousProjects) : undefined,
+            previousProjects: formData.previousProjects
+                ? parseInt(formData.previousProjects)
+                : undefined,
             images: formData.images,
         })
 
@@ -133,48 +225,6 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
     const isFormValid =
         formData.name && formData.price && formData.subcategory && formData.category &&
         formData.yearsOfExperience && formData.availability && formData.priceType
-
-    const TagList = ({
-                         type,
-                         items,
-                         inputValue,
-                         inputField,
-                         placeholder,
-                     }: {
-        type: "expertise" | "serviceArea" | "certifications"
-        items: string[]
-        inputValue: string
-        inputField: string
-        placeholder: string
-    }) => (
-        <div>
-            <Label className="capitalize">{type === "serviceArea" ? "Service Areas" : type}</Label>
-            <div className="flex gap-2">
-                <Input
-                    placeholder={placeholder}
-                    value={inputValue}
-                    onChange={(e) => handleInputChange(inputField, e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddItem(type) } }}
-                    disabled={isLoading}
-                />
-                <Button variant="outline" onClick={() => handleAddItem(type)} disabled={isLoading || !inputValue.trim()} type="button">
-                    Add
-                </Button>
-            </div>
-            {items.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                    {items.map((item, i) => (
-                        <div key={i} className="bg-accent text-accent-foreground px-3 py-1 rounded-full flex items-center gap-2">
-                            <span className="text-sm">{item}</span>
-                            <button onClick={() => handleRemoveItem(type, i)} type="button" className="hover:opacity-70">
-                                <X className="h-3 w-3" />
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    )
 
     const fields = (
         <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
@@ -207,18 +257,26 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
                     <Select
                         value={formData.subcategory}
                         onValueChange={(slug) => {
-                            const selected = subcategories.find((subcategory) => subcategory.slug === slug)
+                            const selected = subcategories.find((s) => s.slug === slug)
                             handleInputChange("subcategory", slug)
                             handleInputChange("category", selected?.label ?? slug)
                         }}
                         disabled={isLoading || isLoadingSubcategories || subcategories.length === 0}
                     >
                         <SelectTrigger id="cs-subcategory">
-                            <SelectValue placeholder={isLoadingSubcategories ? "Loading subcategories..." : "Select subcategory"} />
+                            <SelectValue
+                                placeholder={
+                                    isLoadingSubcategories
+                                        ? "Loading subcategories..."
+                                        : "Select subcategory"
+                                }
+                            />
                         </SelectTrigger>
                         <SelectContent>
                             {subcategories.map((subcategory) => (
-                                <SelectItem key={subcategory.slug} value={subcategory.slug}>{subcategory.label}</SelectItem>
+                                <SelectItem key={subcategory.slug} value={subcategory.slug}>
+                                    {subcategory.label}
+                                </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
@@ -239,7 +297,11 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <Label htmlFor="cs-pricetype">Price Type *</Label>
-                    <Select value={formData.priceType} onValueChange={(v) => handleInputChange("priceType", v)} disabled={isLoading}>
+                    <Select
+                        value={formData.priceType}
+                        onValueChange={(v) => handleInputChange("priceType", v)}
+                        disabled={isLoading}
+                    >
                         <SelectTrigger id="cs-pricetype">
                             <SelectValue placeholder="Select type" />
                         </SelectTrigger>
@@ -267,7 +329,11 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <Label htmlFor="cs-availability">Availability *</Label>
-                    <Select value={formData.availability} onValueChange={(v) => handleInputChange("availability", v)} disabled={isLoading}>
+                    <Select
+                        value={formData.availability}
+                        onValueChange={(v) => handleInputChange("availability", v)}
+                        disabled={isLoading}
+                    >
                         <SelectTrigger id="cs-availability">
                             <SelectValue placeholder="Select availability" />
                         </SelectTrigger>
@@ -317,26 +383,38 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
                 </div>
             </div>
 
-            <TagList
+            <ConstructionTagList
                 type="expertise"
                 items={formData.expertise}
                 inputValue={formData.expertiseInput}
                 inputField="expertiseInput"
                 placeholder="e.g., Residential Roofing"
+                isLoading={isLoading}
+                onInputChange={handleInputChange}
+                onAdd={handleAddItem}
+                onRemove={handleRemoveItem}
             />
-            <TagList
+            <ConstructionTagList
                 type="serviceArea"
                 items={formData.serviceArea}
                 inputValue={formData.serviceAreaInput}
                 inputField="serviceAreaInput"
                 placeholder="e.g., Westlands, Nairobi"
+                isLoading={isLoading}
+                onInputChange={handleInputChange}
+                onAdd={handleAddItem}
+                onRemove={handleRemoveItem}
             />
-            <TagList
+            <ConstructionTagList
                 type="certifications"
                 items={formData.certifications}
                 inputValue={formData.certificationInput}
                 inputField="certificationInput"
                 placeholder="e.g., NCA Certified"
+                isLoading={isLoading}
+                onInputChange={handleInputChange}
+                onAdd={handleAddItem}
+                onRemove={handleRemoveItem}
             />
 
             <div>
@@ -355,7 +433,14 @@ export const CreateConstructionServiceForm = memo(function CreateConstructionSer
                 Cancel
             </Button>
             <Button onClick={handleSubmit} disabled={isLoading || !isFormValid}>
-                {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating...</> : "Create Listing"}
+                {isLoading ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating...
+                    </>
+                ) : (
+                    "Create Listing"
+                )}
             </Button>
         </DialogFooter>
     )

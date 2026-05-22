@@ -17,10 +17,85 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { CloudinaryImageUploader } from "@/components/cloudinary-image-uploader"
 
+// ── TagList lives at module scope to prevent remount-on-every-render ──────────
+
+type JobTagType = "responsibilities" | "qualifications" | "benefits"
+
+interface JobTagListProps {
+    type: JobTagType
+    items: string[]
+    inputValue: string
+    inputField: string
+    placeholder: string
+    isLoading: boolean
+    onInputChange: (field: string, value: string) => void
+    onAdd: (type: JobTagType) => void
+    onRemove: (type: JobTagType, index: number) => void
+}
+
+const JobTagList = ({
+                        type,
+                        items,
+                        inputValue,
+                        inputField,
+                        placeholder,
+                        isLoading,
+                        onInputChange,
+                        onAdd,
+                        onRemove,
+                    }: JobTagListProps) => (
+    <div>
+        <Label className="capitalize">{type}</Label>
+        <div className="flex gap-2">
+            <Input
+                placeholder={placeholder}
+                value={inputValue}
+                onChange={(e) => onInputChange(inputField, e.target.value)}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault()
+                        onAdd(type)
+                    }
+                }}
+                disabled={isLoading}
+            />
+            <Button
+                variant="outline"
+                onClick={() => onAdd(type)}
+                disabled={isLoading || !inputValue.trim()}
+                type="button"
+            >
+                Add
+            </Button>
+        </div>
+        {items.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+                {items.map((item, i) => (
+                    <div
+                        key={i}
+                        className="bg-accent text-accent-foreground px-3 py-1 rounded-full flex items-center gap-2"
+                    >
+                        <span className="text-sm">{item}</span>
+                        <button
+                            onClick={() => onRemove(type, i)}
+                            type="button"
+                            className="hover:opacity-70"
+                        >
+                            <X className="h-3 w-3" />
+                        </button>
+                    </div>
+                ))}
+            </div>
+        )}
+    </div>
+)
+
+// ── Form ──────────────────────────────────────────────────────────────────────
+
 interface CreateJobFormProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    onSubmit: (data: any) => Promise<void>
+    onSubmit: (data: Record<string, unknown>) => Promise<void>
     isLoading?: boolean
     inline?: boolean
 }
@@ -55,30 +130,33 @@ export const CreateJobForm = memo(function CreateJobForm({
         images: [] as string[],
     })
 
-    const handleInputChange = (field: string, value: any) => {
+    const handleInputChange = (field: string, value: string | boolean | string[]) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
 
-    const inputFieldMap = {
+    const inputFieldMap: Record<JobTagType, keyof typeof formData> = {
         responsibilities: "responsibilityInput",
         qualifications: "qualificationInput",
         benefits: "benefitInput",
-    } as const
+    }
 
-    const handleAddItem = (type: "responsibilities" | "qualifications" | "benefits") => {
+    const handleAddItem = (type: JobTagType) => {
         const inputField = inputFieldMap[type]
         const inputValue = formData[inputField] as string
         if (inputValue.trim()) {
             setFormData((prev) => ({
                 ...prev,
-                [type]: [...prev[type], inputValue.trim()],
+                [type]: [...(prev[type] as string[]), inputValue.trim()],
                 [inputField]: "",
             }))
         }
     }
 
-    const handleRemoveItem = (type: "responsibilities" | "qualifications" | "benefits", index: number) => {
-        setFormData((prev) => ({ ...prev, [type]: prev[type].filter((_, i) => i !== index) }))
+    const handleRemoveItem = (type: JobTagType, index: number) => {
+        setFormData((prev) => ({
+            ...prev,
+            [type]: (prev[type] as string[]).filter((_, i) => i !== index),
+        }))
     }
 
     const resetForm = () => {
@@ -107,7 +185,10 @@ export const CreateJobForm = memo(function CreateJobForm({
     }
 
     const handleSubmit = async () => {
-        const requiredFields = ["name", "jobTitle", "company", "industry", "employmentType", "location", "salaryMin", "salaryMax"]
+        const requiredFields = [
+            "name", "jobTitle", "company", "industry",
+            "employmentType", "location", "salaryMin", "salaryMax",
+        ]
         if (requiredFields.some((f) => !formData[f as keyof typeof formData])) return
 
         await onSubmit({
@@ -137,48 +218,6 @@ export const CreateJobForm = memo(function CreateJobForm({
     const isFormValid =
         formData.name && formData.jobTitle && formData.company && formData.industry &&
         formData.employmentType && formData.location && formData.salaryMin && formData.salaryMax
-
-    const TagList = ({
-                         type,
-                         items,
-                         inputValue,
-                         inputField,
-                         placeholder,
-                     }: {
-        type: "responsibilities" | "qualifications" | "benefits"
-        items: string[]
-        inputValue: string
-        inputField: string
-        placeholder: string
-    }) => (
-        <div>
-            <Label className="capitalize">{type}</Label>
-            <div className="flex gap-2">
-                <Input
-                    placeholder={placeholder}
-                    value={inputValue}
-                    onChange={(e) => handleInputChange(inputField, e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddItem(type) } }}
-                    disabled={isLoading}
-                />
-                <Button variant="outline" onClick={() => handleAddItem(type)} disabled={isLoading || !inputValue.trim()} type="button">
-                    Add
-                </Button>
-            </div>
-            {items.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                    {items.map((item, i) => (
-                        <div key={i} className="bg-accent text-accent-foreground px-3 py-1 rounded-full flex items-center gap-2">
-                            <span className="text-sm">{item}</span>
-                            <button onClick={() => handleRemoveItem(type, i)} type="button" className="hover:opacity-70">
-                                <X className="h-3 w-3" />
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    )
 
     const fields = (
         <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
@@ -241,7 +280,11 @@ export const CreateJobForm = memo(function CreateJobForm({
                 </div>
                 <div>
                     <Label htmlFor="j-type">Employment Type *</Label>
-                    <Select value={formData.employmentType} onValueChange={(v) => handleInputChange("employmentType", v)} disabled={isLoading}>
+                    <Select
+                        value={formData.employmentType}
+                        onValueChange={(v) => handleInputChange("employmentType", v)}
+                        disabled={isLoading}
+                    >
                         <SelectTrigger id="j-type">
                             <SelectValue placeholder="Select type" />
                         </SelectTrigger>
@@ -326,26 +369,38 @@ export const CreateJobForm = memo(function CreateJobForm({
                 />
             </div>
 
-            <TagList
+            <JobTagList
                 type="responsibilities"
                 items={formData.responsibilities}
                 inputValue={formData.responsibilityInput}
                 inputField="responsibilityInput"
                 placeholder="Add responsibility..."
+                isLoading={isLoading}
+                onInputChange={handleInputChange}
+                onAdd={handleAddItem}
+                onRemove={handleRemoveItem}
             />
-            <TagList
+            <JobTagList
                 type="qualifications"
                 items={formData.qualifications}
                 inputValue={formData.qualificationInput}
                 inputField="qualificationInput"
                 placeholder="Add qualification..."
+                isLoading={isLoading}
+                onInputChange={handleInputChange}
+                onAdd={handleAddItem}
+                onRemove={handleRemoveItem}
             />
-            <TagList
+            <JobTagList
                 type="benefits"
                 items={formData.benefits}
                 inputValue={formData.benefitInput}
                 inputField="benefitInput"
                 placeholder="Add benefit..."
+                isLoading={isLoading}
+                onInputChange={handleInputChange}
+                onAdd={handleAddItem}
+                onRemove={handleRemoveItem}
             />
 
             <div>
@@ -364,7 +419,14 @@ export const CreateJobForm = memo(function CreateJobForm({
                 Cancel
             </Button>
             <Button onClick={handleSubmit} disabled={isLoading || !isFormValid}>
-                {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating...</> : "Create Listing"}
+                {isLoading ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating...
+                    </>
+                ) : (
+                    "Create Listing"
+                )}
             </Button>
         </DialogFooter>
     )
