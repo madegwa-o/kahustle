@@ -9,7 +9,7 @@ export default function CareerCard({ item, locked }: { item: any; locked?: boole
   return (
       <Link
           href={item.detailUrl}
-          className="group block border rounded-lg overflow-hidden hover:border-primary hover:shadow-sm transition-all"
+          className="group block border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
       >
         {images.length > 0 ? (
             <ImageSwiper
@@ -32,9 +32,9 @@ export default function CareerCard({ item, locked }: { item: any; locked?: boole
             </div>
         )}
 
-        <div className="p-3 space-y-1.5">
+        <div className="p-4 space-y-2">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-semibold text-sm leading-tight line-clamp-1">{item.jobTitle}</h3>
+            <h3 className="font-semibold text-base leading-tight line-clamp-1">{item.jobTitle}</h3>
             {item.remote && (
                 <Badge variant="secondary" className="shrink-0 text-[10px] gap-1">
                   <Wifi className="h-2.5 w-2.5" /> Remote
