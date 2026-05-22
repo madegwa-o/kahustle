@@ -13,7 +13,8 @@ import AuthErrorHandlerWrapper from "@/components/auth-error-handler-wrapper";
 import { NotificationDisplay } from "@/components/notifications/notification-display";
 import ContactNav from "@/components/contact-nav";
 import { Navbar } from "@/components/navbar";
-import Footer from "@/components/footer";
+import { SidebarProvider } from "@/hooks/sidebar-context"
+import {Sidebar} from "@/components/Sidebar";
 
 // -----------------
 // Font Configuration
@@ -153,14 +154,17 @@ export default function RootLayout({
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthProvider>
             <ThemeProvider defaultTheme="system" storageKey="theme-pref">
-                <Suspense fallback={null}>
-                    <ContactNav />
-                    <Navbar />
-                    {children}
-                    <Footer />
-                    <Analytics />
-                </Suspense>
-
+                <SidebarProvider>
+                <ContactNav />
+                <div className="flex h-screen overflow-hidden bg-background">
+                    <Sidebar />
+                    <main className="flex-1 overflow-y-auto">
+                        <Suspense fallback={null}>
+                            {children}
+                        </Suspense>
+                    </main>
+                </div>
+                </SidebarProvider>
                 <NotificationDisplay />
                 <AuthErrorHandlerWrapper />
                 <InstallPrompt />

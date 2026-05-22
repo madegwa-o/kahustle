@@ -1,10 +1,11 @@
 import { Role } from "@/lib/roles"
 
+//TODO: Don't change the values to caps coz they are connected to the DB slags
 export enum MainCategory {
-  VEHICLES = "VEHICLES",
-  CONSTRUCTION_FREELANCERS = "CONSTRUCTION_FREELANCERS",
-  CAREERS = "CAREERS",
-  PROPERTIES = "PROPERTIES",
+  VEHICLES = "vehicles",
+  CONSTRUCTION_FREELANCERS = "construction-freelancers",
+  CAREERS = "careers",
+  PROPERTIES = "properties",
 }
 
 export interface CategoryPermissionConfig {

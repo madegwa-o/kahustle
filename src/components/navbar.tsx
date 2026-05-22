@@ -69,7 +69,10 @@ function useNavCategories() {
             dedupingInterval: 60 * 60 * 1000,
         }
     )
-    return { subcategories: data, error, isLoading }
+
+    // Don't treat an empty object as valid cached data
+    const hasData = data && Object.keys(data).length > 0
+    return { subcategories: hasData ? data : undefined, error, isLoading }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -115,6 +118,8 @@ export function Navbar() {
     const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
     const roles: string[] = session?.user?.roles ?? []
+
+    console.log("sub: ", subcategories)
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {

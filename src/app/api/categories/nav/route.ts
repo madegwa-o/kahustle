@@ -19,6 +19,9 @@ export async function GET() {
         { mainCategory: 1, subcategories: 1 }
     ).lean<{ mainCategory: MainCategory; subcategories: { label: string; slug: string }[] }[]>()
 
+// Add this:
+    console.log("raw categories:", JSON.stringify(categories, null, 2))
+    console.log("CATEGORY_ROUTE_SLUGS keys:", Object.keys(CATEGORY_ROUTE_SLUGS))
     const grouped = categories.reduce<Record<string, { label: string; href: string }[]>>(
         (acc, cat) => {
             const routeSlug = CATEGORY_ROUTE_SLUGS[cat.mainCategory]
@@ -33,6 +36,7 @@ export async function GET() {
         {}
     )
 
+    console.log("grouped: ", grouped)
     return NextResponse.json(grouped, {
         headers: {
             "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=3600",

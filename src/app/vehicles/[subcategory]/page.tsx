@@ -8,15 +8,22 @@ import VehiclesGrid from "@/components/vehicles/vehicles-grid"
 import { useVehicles } from "@/hooks/vehicles/use-vehicles"
 import { Button } from "@/components/ui/button"
 import { ChevronRight } from "lucide-react"
+import {useSession} from "next-auth/react";
+import {canCreateVehicle} from "@/lib/vehicles/vehicle-permissions";
+import {CreateVehicleForm} from "@/components/forms/create-vehicle-form";
 
 export default function VehicleSubcategoryPage() {
     const { subcategory } = useParams<{ subcategory: string }>()
+    const { data: Session} = useSession()
+    const [openCreate, setOpenCreate] = useState(false)
+    const [isCreating, setIsCreating] = useState(false)
 
+    const canPost = canCreateVehicle(Session?.user)
     const [params, setParams] = useState(
         new URLSearchParams({ page: "1", limit: "20", sort: "newest", subcategory })
     )
     const query = useMemo(() => params.toString(), [params])
-    const { vehicles, pagination, loading, error } = useVehicles(query)
+    const { vehicles, pagination, loading, mutate,  error } = useVehicles(query)
 
     const onChange = (key: string, value: string) => {
         const next = new URLSearchParams(params)
@@ -26,6 +33,25 @@ export default function VehicleSubcategoryPage() {
         setParams(next)
     }
 
+    const handleCreate = async (data: unknown) => {
+        setIsCreating(true)
+        try {
+            const res = await fetch("/api/vehicles", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            })
+            if (!res.ok) {
+                throw new Error("Failed to create listing")
+            }
+            setOpenCreate(false)
+            await mutate()
+        } finally {
+            setIsCreating(false)
+        }
+    }
+
+
     const displayName = subcategory.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())
 
     return (
@@ -33,10 +59,18 @@ export default function VehicleSubcategoryPage() {
             <Link href="/vehicles" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-4">
                 <ChevronLeft className="h-4 w-4" />All vehicles
             </Link>
+            <div className="flex items-center justify-between gap-3">
 
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold text-foreground">{displayName}</h1>
-                <p className="text-muted-foreground mt-1">Browse {displayName.toLowerCase()} for sale in Kenya</p>
+                <div className="mb-6">
+                    <h1 className="text-3xl font-bold text-foreground">{displayName}</h1>
+                    <p className="text-muted-foreground mt-1">Browse {displayName.toLowerCase()} for sale in Kenya</p>
+                </div>
+
+                {canPost ? (
+                    <Button onClick={() => setOpenCreate(true)}>Post Car</Button>
+                ) : (
+                    <Button asChild variant="outline"><a href="/account">Become a Car dealer to Post</a></Button>
+                )}
             </div>
 
             <VehicleFilters values={params} onChange={onChange} />
@@ -73,6 +107,15 @@ export default function VehicleSubcategoryPage() {
                     </Button>
                 </div>
             )}
+
+            {canPost ? (
+                <CreateVehicleForm
+                    open={openCreate}
+                    onOpenChange={setOpenCreate}
+                    onSubmit={handleCreate}
+                    isLoading={isCreating}
+                />
+            ) : null}
         </main>
     )
 }

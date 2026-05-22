@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import {CreateVehicleForm} from "@/components/forms/create-vehicle-form";
 import {canCreateVehicle} from "@/lib/vehicles/vehicle-permissions";
 import {useSession} from "next-auth/react";
+import {RightPanel} from "@/components/right-panel";
 
 export default function VehiclesPage() {
   const [params, setParams] = useState(new URLSearchParams({ page: "1", limit: "20", sort: "newest" }))
@@ -48,7 +49,9 @@ export default function VehiclesPage() {
 
 
     return (
-      <main className="mx-auto max-w-7xl px-4 py-8">
+
+        <div  className="flex min-h-screen bg-card" >
+      <main className="flex-1 p-6 overflow-y-auto  ">
 
           <div className="flex items-center justify-between gap-3">
               <div className="mb-6">
@@ -102,6 +105,17 @@ export default function VehiclesPage() {
                   isLoading={isCreating}
               />
           ) : null}
+
       </main>
+
+    {/* Right panel — page controls what goes here */}
+    <RightPanel>
+        {
+            <div>
+            </div>
+        }
+    </RightPanel>
+
+    </div>
   )
 }

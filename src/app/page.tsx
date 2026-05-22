@@ -4,9 +4,13 @@ import { useState, useEffect } from "react"
 import { SearchFiltersComponent, type SearchFilters } from "@/components/search-filters"
 import MasonryFeeds from "@/components/masonry-feeds"
 import { useCategories } from "@/hooks/use-categories"
+import { RightPanel } from "@/components/right-panel"
+import Footer from "@/components/footer"
+import HeroCarousel from "@/components/HeroCarousel";
 
 export default function Home() {
     const { categories, fetchCategories } = useCategories()
+    const [isPanelOpen, setIsPanelOpen] = useState(false)
     const [filters, setFilters] = useState<SearchFilters>({
         search: "",
         categories: [],
@@ -26,32 +30,36 @@ export default function Home() {
     }
 
     return (
-        <div className="min-h-screen">
-            <main className="container mx-auto px-4 py-12">
+        <div className="flex min-h-screen bg-card">
+            <main className="flex-1 p-6 overflow-y-auto">
+                <HeroCarousel />
 
-                <a
-                    href="https://chat.whatsapp.com/?mode=wwt"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block mb-12 max-w-2xl transition-transform hover:scale-[1.02] hover:shadow-sm rounded-xl p-2"
-                >
-                    <div>
-                        <h2 className="font-sans text-4xl font-medium leading-tight tracking-tight text-foreground text-balance">
-                            Your Hustle Marketplace
-                        </h2>
-                        <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-                            Buy,sell and rent cars and properties, find a job or be a freelancer. Safe,
-                            convenient, and built for the common mwananchi.
-                        </p>
-                    </div>
-                </a>
+            {/* Example button to open the panel on mobile */}
+            <button
+                onClick={() => setIsPanelOpen(true)}
+                className="mb-4 text-sm text-primary underline md:hidden"
+            >
+                Open filters panel
+            </button>
 
+            <SearchFiltersComponent
+                categories={categories}
+                onFiltersChange={handleFiltersChange}
+                isLoading={isLoading}
+            />
+            <MasonryFeeds filters={filters} onLoadingChange={setIsLoading} />
+            <Footer />
+        </main>
 
-                <SearchFiltersComponent categories={categories} onFiltersChange={handleFiltersChange} isLoading={isLoading} />
-
-                <MasonryFeeds filters={filters} onLoadingChange={setIsLoading} />
-            </main>
-
+    <RightPanel
+        isOpen={isPanelOpen}
+        onClose={() => setIsPanelOpen(false)}
+        title="Panel"
+    >
+        <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Thank you for shoping with us.</p>
         </div>
-    )
+    </RightPanel>
+</div>
+)
 }
