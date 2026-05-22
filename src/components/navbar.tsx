@@ -133,30 +133,30 @@ export function Navbar() {
     return (
         <header
             ref={menuRef}
-            className="sticky top-0 z-50 w-full bg-card border-b border-border shadow-sm"
+            className="sticky top-0 z-50 w-full bg-card border-b border-border"
         >
-            <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+            <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-4">
 
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 shrink-0">
-                    <span className="font-extrabold text-2xl tracking-tight">
+                    <span className="font-bold text-2xl tracking-tight">
                         <span className="text-primary">K</span>
                         <span className="text-foreground">AHUSTLE</span>
                     </span>
-                    <span className="hidden sm:block text-[10px] font-semibold text-muted-foreground leading-tight mt-1">
+                    <span className="hidden sm:block text-xs font-medium text-muted-foreground leading-tight mt-0.5">
                         Kenyan Owned Classifieds
                     </span>
                 </Link>
 
                 {/* Desktop Nav */}
-                <nav className="hidden lg:flex items-center gap-1">
+                <nav className="hidden lg:flex items-center gap-2">
                     {navLinks.map((link) =>
                         link.children && link.children.length > 0 ? (
                             <DropdownMenu key={link.href}>
                                 <DropdownMenuTrigger asChild>
-                                    <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-foreground rounded-md hover:text-primary hover:bg-secondary transition-colors">
+                                    <button className="flex items-center gap-1.5 px-4 py-2 text-sm text-foreground rounded-md hover:text-primary transition-colors">
                                         {link.label}
-                                        <ChevronDown className="h-3.5 w-3.5" />
+                                        <ChevronDown className="h-4 w-4" />
                                     </button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="start" className="w-56 max-h-72 overflow-y-auto">
@@ -183,7 +183,7 @@ export function Navbar() {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="px-3 py-2 text-sm font-medium text-foreground rounded-md hover:text-primary hover:bg-secondary transition-colors"
+                                className="px-4 py-2 text-sm text-foreground rounded-md hover:text-primary transition-colors"
                             >
                                 {link.label}
                             </Link>

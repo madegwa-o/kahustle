@@ -26,28 +26,28 @@ export default function Home() {
     }
 
     return (
-        <div className="min-h-screen">
-            <main className="container mx-auto px-4 py-12">
+        <div className="min-h-screen bg-background">
+            <main className="max-w-7xl mx-auto px-4 py-16 lg:py-24">
 
                 <a
                     href="https://chat.whatsapp.com/?mode=wwt"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block mb-12 max-w-2xl transition-transform hover:scale-[1.02] hover:shadow-sm rounded-xl p-2"
+                    className="block mb-16 lg:mb-24 max-w-3xl transition-transform hover:opacity-90"
                 >
                     <div>
-                        <h2 className="font-sans text-4xl font-medium leading-tight tracking-tight text-foreground text-balance">
+                        <h1 className="text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-foreground text-balance">
                             Your Hustle Marketplace
-                        </h2>
-                        <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-                            Buy,sell and rent cars and properties, find a job or be a freelancer. Safe,
-                            convenient, and built for the common mwananchi.
+                        </h1>
+                        <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-2xl">
+                            Buy, sell and rent cars and properties, find a job or be a freelancer. Safe, convenient, and built for the common mwananchi.
                         </p>
                     </div>
                 </a>
 
-
-                <SearchFiltersComponent categories={categories} onFiltersChange={handleFiltersChange} isLoading={isLoading} />
+                <div className="mb-16 lg:mb-24">
+                    <SearchFiltersComponent categories={categories} onFiltersChange={handleFiltersChange} isLoading={isLoading} />
+                </div>
 
                 <MasonryFeeds filters={filters} onLoadingChange={setIsLoading} />
             </main>

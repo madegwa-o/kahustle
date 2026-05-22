@@ -68,20 +68,20 @@ const socials = [
 export default function Footer() {
     return (
 
-        <footer className="mt-24 border-t border-border bg-card">
+        <footer className="mt-32 border-t border-border bg-background">
             {/* Main footer grid */}
-            <div className="max-w-7xl mx-auto px-6 py-16">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+            <div className="max-w-7xl mx-auto px-6 py-20">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
 
                     {/* Link columns */}
                     {footerSections.map((section) => (
                         <div key={section.title}>
-                            <h3 className="text-sm text-foreground font-semibold">
+                            <h3 className="text-sm font-semibold text-foreground tracking-wide">
                                 {section.title}
                             </h3>
-                            {/* Primary accent underline */}
-                            <div className="w-8 h-0.5 bg-primary mb-5" />
-                            <ul className="space-y-3">
+                            {/* Subtle accent line */}
+                            <div className="w-8 h-px bg-primary mt-3 mb-6" />
+                            <ul className="space-y-4">
                                 {section.links.map((link) => (
                                     <li key={link.href}>
                                         <Link
@@ -121,8 +121,8 @@ export default function Footer() {
             </div>
 
             {/* Bottom bar */}
-            <div className="border-t border-border bg-muted/30">
-                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-center">
+            <div className="border-t border-border bg-background">
+                <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-center">
                     <p className="text-xs text-muted-foreground text-center">
                         All Rights Reserved. Copyright 2026. Kahustle, Kenya&apos;s Leading Classified Ads Marketplace.
                     </p>
