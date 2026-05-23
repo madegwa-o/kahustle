@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { paymentEmitter } from "@/lib/payments/emitter"
+import { redis } from "@/lib/payments/redis"
 
-// Actual PayHero callback shape (from logs)
 interface PayHeroCallbackBody {
     status: boolean
     response: {
@@ -21,7 +20,6 @@ interface PayHeroCallbackBody {
     forward_url: string
 }
 
-// Normalised shape we emit to the SSE listener
 export interface PaymentUpdate {
     status: "SUCCESS" | "FAILED" | "CANCELLED" | "TIMEOUT"
     reference: string
@@ -53,10 +51,15 @@ export async function POST(req: NextRequest) {
             provider_reference: response.MpesaReceiptNumber || undefined,
         }
 
-        console.log("firing the emmitter")
-        // Fire on the external reference — matches what the page passed when initiating
-        paymentEmitter.emit(`payment:${response.ExternalReference}`, normalized)
-        console.log("emmitter was fired ")
+        // Write result to Redis with 5 min expiry — SSE route will poll for it
+        await redis.set(
+            `payment:${response.ExternalReference}`,
+            JSON.stringify(normalized),
+            { ex: 300 }
+        )
+
+        console.log("Payment result written to Redis:", response.ExternalReference)
+
         return NextResponse.json({ received: true }, { status: 200 })
     } catch (err) {
         console.error("Callback error:", err)
