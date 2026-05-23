@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server"
 import { paymentEmitter } from "@/lib/payments/emitter"
-import type { PayHeroCallback } from "@/app/api/payments/callback/route"
+import type { PaymentUpdate } from "@/app/api/payments/callback/route"
 
-export const runtime = "nodejs" // SSE requires Node runtime, not Edge
+export const runtime = "nodejs"
 
 export async function GET(req: NextRequest) {
     const reference = req.nextUrl.searchParams.get("reference")
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
     const stream = new ReadableStream({
         start(controller) {
-            const send = (data: PayHeroCallback) => {
+            const send = (data: PaymentUpdate) => {
                 controller.enqueue(`data: ${JSON.stringify(data)}\n\n`)
                 controller.close()
                 paymentEmitter.off(`payment:${reference}`, send)
@@ -21,16 +21,14 @@ export async function GET(req: NextRequest) {
 
             paymentEmitter.on(`payment:${reference}`, send)
 
-            // Auto-close after 5 minutes if no callback received
             const timeout = setTimeout(() => {
                 controller.enqueue(
                     `data: ${JSON.stringify({ status: "TIMEOUT", reference })}\n\n`
                 )
                 controller.close()
                 paymentEmitter.off(`payment:${reference}`, send)
-            }, 5 * 60 * 1000)
+            }, 50 * 1000)
 
-            // Clean up timeout if stream closes early
             req.signal.addEventListener("abort", () => {
                 clearTimeout(timeout)
                 paymentEmitter.off(`payment:${reference}`, send)
